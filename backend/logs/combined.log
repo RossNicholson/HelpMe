@@ -353,3 +353,26 @@
 {"level":"info","message":"Client connected: 74W-KEcbK4tbhgUzAAAI","service":"helpme-api","timestamp":"2025-06-28 15:26:04"}
 {"level":"info","message":"Client disconnected: 74W-KEcbK4tbhgUzAAAI","service":"helpme-api","timestamp":"2025-06-28 15:26:57"}
 {"level":"info","message":"Client connected: TGQm0537y6yiUehWAAAL","service":"helpme-api","timestamp":"2025-06-28 15:26:57"}
+{"level":"info","message":"🚀 HelpMe API server running on port 8000","service":"helpme-api","timestamp":"2025-06-28 15:30:31"}
+{"level":"info","message":"📚 API Documentation: http://localhost:8000/api-docs","service":"helpme-api","timestamp":"2025-06-28 15:30:31"}
+{"level":"info","message":"🏥 Health Check: http://localhost:8000/health","service":"helpme-api","timestamp":"2025-06-28 15:30:31"}
+{"level":"info","message":"Client connected: OiiWr85pLEHkV_OeAAAB","service":"helpme-api","timestamp":"2025-06-28 15:30:32"}
+{"level":"info","message":"🚀 HelpMe API server running on port 8000","service":"helpme-api","timestamp":"2025-06-28 15:30:45"}
+{"level":"info","message":"📚 API Documentation: http://localhost:8000/api-docs","service":"helpme-api","timestamp":"2025-06-28 15:30:45"}
+{"level":"info","message":"🏥 Health Check: http://localhost:8000/health","service":"helpme-api","timestamp":"2025-06-28 15:30:45"}
+{"level":"info","message":"Client connected: QC821VNqNsYnAfkyAAAB","service":"helpme-api","timestamp":"2025-06-28 15:30:46"}
+{"level":"info","message":"SIGTERM received, shutting down gracefully","service":"helpme-api","timestamp":"2025-06-28 15:31:23"}
+{"level":"info","message":"Database connection closed","service":"helpme-api","timestamp":"2025-06-28 15:31:23"}
+{"level":"info","message":"SIGTERM received, shutting down gracefully","service":"helpme-api","timestamp":"2025-06-28 15:31:23"}
+{"level":"info","message":"Database connection closed","service":"helpme-api","timestamp":"2025-06-28 15:31:23"}
+{"level":"info","message":"SIGINT received, shutting down gracefully","service":"helpme-api","timestamp":"2025-06-28 15:31:23"}
+{"level":"info","message":"Database connection closed","service":"helpme-api","timestamp":"2025-06-28 15:31:23"}
+{"level":"info","message":"SIGINT received, shutting down gracefully","service":"helpme-api","timestamp":"2025-06-28 15:31:23"}
+{"level":"info","message":"Database connection closed","service":"helpme-api","timestamp":"2025-06-28 15:31:23"}
+{"level":"info","message":"SIGTERM received, shutting down gracefully","service":"helpme-api","timestamp":"2025-06-28 15:31:54"}
+{"level":"info","message":"Database connection closed","service":"helpme-api","timestamp":"2025-06-28 15:31:54"}
+{"level":"info","message":"Client disconnected: QC821VNqNsYnAfkyAAAB","service":"helpme-api","timestamp":"2025-06-28 15:32:06"}
+{"level":"info","message":"🚀 HelpMe API server running on port 8000","service":"helpme-api","timestamp":"2025-06-28 15:32:12"}
+{"level":"info","message":"📚 API Documentation: http://localhost:8000/api-docs","service":"helpme-api","timestamp":"2025-06-28 15:32:12"}
+{"level":"info","message":"🏥 Health Check: http://localhost:8000/health","service":"helpme-api","timestamp":"2025-06-28 15:32:12"}
+{"level":"info","message":"Client connected: _FLkPagn_WjV0IA6AAAB","service":"helpme-api","timestamp":"2025-06-28 15:32:17"}

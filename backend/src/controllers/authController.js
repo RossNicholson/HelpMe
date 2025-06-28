@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
-const { db } = require('../utils/database');
+const knex = require('../utils/database');
 const logger = require('../utils/logger');
 const { sendEmail } = require('../services/emailService');
 
@@ -27,7 +27,7 @@ const register = async (req, res) => {
     const { email, password, first_name, last_name, phone, role, organization_name } = req.body;
 
     // Check if user exists
-    const existingUser = await db('users').where('email', email).first();
+    const existingUser = await knex('users').where('email', email).first();
     if (existingUser) {
       return res.status(400).json({
         success: false,
@@ -40,7 +40,7 @@ const register = async (req, res) => {
     const passwordHash = await bcrypt.hash(password, salt);
 
     // Start transaction
-    const trx = await db.transaction();
+    const trx = await knex.transaction();
 
     try {
       // Create organization if provided, or use default
@@ -130,7 +130,7 @@ const login = async (req, res) => {
     const { email, password } = req.body;
 
     // Check if user exists
-    const user = await db('users')
+    const user = await knex('users')
       .where('email', email)
       .where('is_active', true)
       .first();
@@ -152,7 +152,7 @@ const login = async (req, res) => {
     }
 
     // Update last login
-    await db('users')
+    await knex('users')
       .where('id', user.id)
       .update({ last_login_at: new Date() });
 
@@ -209,7 +209,7 @@ const logout = async (req, res) => {
 // @access  Private
 const getMe = async (req, res) => {
   try {
-    const user = await db('users')
+    const user = await knex('users')
       .where('id', req.user.id)
       .select('id', 'email', 'first_name', 'last_name', 'phone', 'role', 'avatar_url', 'preferences', 'created_at')
       .first();
@@ -247,7 +247,7 @@ const updateProfile = async (req, res) => {
     if (phone) updateData.phone = phone;
     updateData.updated_at = new Date();
 
-    const [updatedUser] = await db('users')
+    const [updatedUser] = await knex('users')
       .where('id', req.user.id)
       .update(updateData)
       .returning(['id', 'email', 'first_name', 'last_name', 'phone', 'role', 'avatar_url']);
@@ -273,7 +273,7 @@ const changePassword = async (req, res) => {
     const { current_password, new_password } = req.body;
 
     // Get current user with password
-    const user = await db('users')
+    const user = await knex('users')
       .where('id', req.user.id)
       .first();
 
@@ -291,7 +291,7 @@ const changePassword = async (req, res) => {
     const passwordHash = await bcrypt.hash(new_password, salt);
 
     // Update password
-    await db('users')
+    await knex('users')
       .where('id', req.user.id)
       .update({
         password_hash: passwordHash,
@@ -318,7 +318,7 @@ const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
-    const user = await db('users')
+    const user = await knex('users')
       .where('email', email)
       .where('is_active', true)
       .first();
@@ -378,7 +378,7 @@ const resetPassword = async (req, res) => {
     const passwordHash = await bcrypt.hash(password, salt);
 
     // Update password (you would find the user by token)
-    // await db('users').where('reset_token', token).update({
+    // await knex('users').where('reset_token', token).update({
     //   password_hash: passwordHash,
     //   reset_token: null,
     //   reset_token_expiry: null,
@@ -416,7 +416,7 @@ const refreshToken = async (req, res) => {
     const decoded = jwt.verify(refresh_token, process.env.REFRESH_TOKEN_SECRET);
 
     // Check if user exists
-    const user = await db('users')
+    const user = await knex('users')
       .where('id', decoded.id)
       .where('is_active', true)
       .first();
@@ -458,7 +458,7 @@ const verifyEmail = async (req, res) => {
     // Verify token and update user (you would implement token verification logic)
     // For now, we'll just simulate the process
 
-    // await db('users').where('verification_token', token).update({
+    // await knex('users').where('verification_token', token).update({
     //   email_verified: true,
     //   email_verified_at: new Date(),
     //   verification_token: null,

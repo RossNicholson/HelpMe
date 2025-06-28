@@ -13,6 +13,7 @@ import Header from './components/Layout/Header';
 // Page Components
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
+import ForgotPassword from './pages/Auth/ForgotPassword';
 import Dashboard from './pages/Dashboard/Dashboard';
 import AnalyticsPage from './pages/Analytics/AnalyticsPage';
 import SMSPage from './pages/SMS/SMSPage';
@@ -103,6 +104,12 @@ const App: React.FC = () => {
                 <Route path="/register" element={
                   <PublicRoute>
                     <Register />
+                  </PublicRoute>
+                } />
+
+                <Route path="/forgot-password" element={
+                  <PublicRoute>
+                    <ForgotPassword />
                   </PublicRoute>
                 } />
 

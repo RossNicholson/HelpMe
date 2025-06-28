@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { db } = require('../utils/database');
+const knex = require('../utils/database');
 const logger = require('../utils/logger');
 
 // Validate JWT secret is configured
@@ -34,7 +34,7 @@ const protect = async (req, res, next) => {
       }
 
       // Get user from token
-      const user = await db('users')
+      const user = await knex('users')
         .where('id', decoded.id)
         .where('is_active', true)
         .first();
@@ -87,7 +87,7 @@ const optionalAuth = async (req, res, next) => {
       token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      const user = await db('users')
+      const user = await knex('users')
         .where('id', decoded.id)
         .where('is_active', true)
         .first();
@@ -144,7 +144,7 @@ const authorizeOrganization = async (req, res, next) => {
   }
 
   // Check if user belongs to the organization
-  const userOrg = await db('user_organizations')
+  const userOrg = await knex('user_organizations')
     .where('user_id', req.user.id)
     .where('organization_id', organizationId)
     .first();
