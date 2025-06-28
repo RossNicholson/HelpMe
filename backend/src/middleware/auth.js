@@ -33,10 +33,16 @@ const protect = async (req, res, next) => {
         });
       }
 
-      // Get user from token
+      // Get user with organization_id from user_organizations table
       const user = await knex('users')
-        .where('id', decoded.id)
-        .where('is_active', true)
+        .join('user_organizations', 'users.id', 'user_organizations.user_id')
+        .where('users.id', decoded.id)
+        .where('users.is_active', true)
+        .where('user_organizations.is_active', true)
+        .select(
+          'users.*',
+          'user_organizations.organization_id'
+        )
         .first();
 
       if (!user) {
@@ -88,8 +94,14 @@ const optionalAuth = async (req, res, next) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
       const user = await knex('users')
-        .where('id', decoded.id)
-        .where('is_active', true)
+        .join('user_organizations', 'users.id', 'user_organizations.user_id')
+        .where('users.id', decoded.id)
+        .where('users.is_active', true)
+        .where('user_organizations.is_active', true)
+        .select(
+          'users.*',
+          'user_organizations.organization_id'
+        )
         .first();
 
       if (user) {
