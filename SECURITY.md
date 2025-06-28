@@ -99,7 +99,7 @@ The following vulnerabilities exist in frontend dependencies and are being monit
 If you discover a security vulnerability, please:
 
 1. **DO NOT** create a public GitHub issue
-2. **DO** email security@yourdomain.com with details
+2. **DO** email security@rossnicholson.dev with details
 3. **Include**:
    - Description of the vulnerability
    - Steps to reproduce
@@ -108,7 +108,7 @@ If you discover a security vulnerability, please:
 
 ## Security Contacts
 
-- **Security Team**: security@yourdomain.com
+- **Security Team**: security@rossnicholson.dev
 - **Maintainer**: [Your Contact Information]
 
 ## Compliance
