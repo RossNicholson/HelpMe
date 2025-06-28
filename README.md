@@ -1,0 +1,224 @@
+# HelpMe - Open Source Helpdesk for IT Managed Service Providers
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
+[![React](https://img.shields.io/badge/React-18+-blue.svg)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5+-blue.svg)](https://www.typescriptlang.org/)
+
+## 🎯 Overview
+
+HelpMe is a modern, open-source helpdesk ticket system specifically designed for IT Managed Service Providers (MSPs). Built with scalability, security, and ease of use in mind, it provides comprehensive ticket management, client communication, and reporting capabilities.
+
+## ✨ Features
+
+### Core Functionality
+- **Multi-tenant Architecture** - Support for multiple clients and organizations
+- **Ticket Management** - Create, track, and resolve support tickets
+- **Priority & SLA Management** - Configurable priority levels and service level agreements
+- **Asset Management** - Track client devices, software, and infrastructure
+- **Knowledge Base** - Centralized documentation and solutions database
+- **Time Tracking** - Built-in time tracking for billing and productivity
+- **Reporting & Analytics** - Comprehensive reporting dashboard
+
+### MSP-Specific Features
+- **Client Portal** - Self-service portal for clients to submit and track tickets
+- **Automated Notifications** - Email and SMS notifications for ticket updates
+- **Integration Ready** - APIs for third-party integrations (PSA, RMM, etc.)
+- **Multi-location Support** - Manage multiple client locations
+- **Contract Management** - Track service agreements and billing
+- **Escalation Rules** - Automated ticket escalation based on SLA
+
+### Technical Features
+- **Modern Tech Stack** - React, Node.js, TypeScript, PostgreSQL
+- **Real-time Updates** - WebSocket support for live notifications
+- **Mobile Responsive** - Works seamlessly on desktop and mobile
+- **API-First Design** - RESTful API for easy integrations
+- **Role-based Access Control** - Granular permissions system
+- **Audit Logging** - Complete audit trail for compliance
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Node.js 18+ 
+- PostgreSQL 14+
+- Redis (for caching and sessions)
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/RossNicholson/HelpMe.git
+   cd HelpMe
+   ```
+
+2. **Install dependencies**
+   ```bash
+   # Install backend dependencies
+   cd backend
+   npm install
+   
+   # Install frontend dependencies
+   cd ../frontend
+   npm install
+   ```
+
+3. **Environment Setup**
+   ```bash
+   # Copy environment files
+   cp backend/.env.example backend/.env
+   cp frontend/.env.example frontend/.env
+   ```
+
+4. **Database Setup**
+   ```bash
+   # Run database migrations
+   cd backend
+   npm run migrate
+   npm run seed
+   ```
+
+5. **Start Development Servers**
+   ```bash
+   # Start backend (from backend directory)
+   npm run dev
+   
+   # Start frontend (from frontend directory)
+   npm run dev
+   ```
+
+6. **Access the Application**
+   - Frontend: http://localhost:3000
+   - Backend API: http://localhost:8000
+   - API Documentation: http://localhost:8000/api-docs
+
+## 📁 Project Structure
+
+```
+HelpMe/
+├── backend/                 # Node.js/Express API server
+│   ├── src/
+│   │   ├── controllers/     # Request handlers
+│   │   ├── models/         # Database models
+│   │   ├── routes/         # API routes
+│   │   ├── middleware/     # Custom middleware
+│   │   ├── services/       # Business logic
+│   │   └── utils/          # Utility functions
+│   ├── migrations/         # Database migrations
+│   └── tests/              # Backend tests
+├── frontend/               # React TypeScript application
+│   ├── src/
+│   │   ├── components/     # Reusable components
+│   │   ├── pages/          # Page components
+│   │   ├── hooks/          # Custom React hooks
+│   │   ├── services/       # API services
+│   │   ├── store/          # State management
+│   │   └── utils/          # Utility functions
+│   └── public/             # Static assets
+├── docs/                   # Documentation
+├── docker/                 # Docker configuration
+└── scripts/                # Build and deployment scripts
+```
+
+## 🔧 Configuration
+
+### Environment Variables
+
+#### Backend (.env)
+```env
+# Database
+DATABASE_URL=postgresql://username:password@localhost:5432/helpme
+REDIS_URL=redis://localhost:6379
+
+# Authentication
+JWT_SECRET=your-jwt-secret
+JWT_EXPIRES_IN=24h
+
+# Email
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
+
+# File Storage
+AWS_ACCESS_KEY_ID=your-access-key
+AWS_SECRET_ACCESS_KEY=your-secret-key
+AWS_REGION=us-east-1
+AWS_S3_BUCKET=helpme-uploads
+
+# API
+API_PORT=8000
+NODE_ENV=development
+```
+
+#### Frontend (.env)
+```env
+REACT_APP_API_URL=http://localhost:8000
+REACT_APP_WS_URL=ws://localhost:8000
+REACT_APP_APP_NAME=HelpMe
+```
+
+## 🧪 Testing
+
+```bash
+# Backend tests
+cd backend
+npm run test
+
+# Frontend tests
+cd frontend
+npm run test
+
+# E2E tests
+npm run test:e2e
+```
+
+## 📦 Deployment
+
+### Docker Deployment
+```bash
+# Build and run with Docker Compose
+docker-compose up -d
+```
+
+### Manual Deployment
+```bash
+# Build frontend
+cd frontend
+npm run build
+
+# Start production backend
+cd backend
+npm run start
+```
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+### Development Workflow
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🆘 Support
+
+- **Documentation**: [docs.helpme.com](https://docs.helpme.com)
+- **Issues**: [GitHub Issues](https://github.com/RossNicholson/HelpMe/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/RossNicholson/HelpMe/discussions)
+- **Email**: support@helpme.com
+
+## 🙏 Acknowledgments
+
+- Built with ❤️ for the MSP community
+- Inspired by the need for better, more affordable helpdesk solutions
+- Thanks to all contributors and the open-source community
+
+---
+
+**HelpMe** - Making IT support management easier, one ticket at a time. 
