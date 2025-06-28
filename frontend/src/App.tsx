@@ -12,21 +12,9 @@ import Header from './components/Layout/Header';
 
 // Page Components
 import Login from './pages/Auth/Login';
-import Register from './pages/Auth/Register';
-import ForgotPassword from './pages/Auth/ForgotPassword';
-import ResetPassword from './pages/Auth/ResetPassword';
 import Dashboard from './pages/Dashboard/Dashboard';
-import Tickets from './pages/Tickets/Tickets';
-import TicketDetail from './pages/Tickets/TicketDetail';
-import NewTicket from './pages/Tickets/NewTicket';
-import Clients from './pages/Clients/Clients';
-import ClientDetail from './pages/Clients/ClientDetail';
-import Assets from './pages/Assets/Assets';
-import KnowledgeBase from './pages/KnowledgeBase/KnowledgeBase';
-import Reports from './pages/Reports/Reports';
 import AnalyticsPage from './pages/Analytics/AnalyticsPage';
-import Settings from './pages/Settings/Settings';
-import Profile from './pages/Profile/Profile';
+import SMSPage from './pages/SMS/SMSPage';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -102,21 +90,6 @@ const App: React.FC = () => {
                     <Login />
                   </PublicRoute>
                 } />
-                <Route path="/register" element={
-                  <PublicRoute>
-                    <Register />
-                  </PublicRoute>
-                } />
-                <Route path="/forgot-password" element={
-                  <PublicRoute>
-                    <ForgotPassword />
-                  </PublicRoute>
-                } />
-                <Route path="/reset-password" element={
-                  <PublicRoute>
-                    <ResetPassword />
-                  </PublicRoute>
-                } />
 
                 {/* Protected Routes */}
                 <Route path="/" element={
@@ -135,70 +108,6 @@ const App: React.FC = () => {
                   </ProtectedRoute>
                 } />
 
-                <Route path="/tickets" element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <Tickets />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-
-                <Route path="/tickets/new" element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <NewTicket />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-
-                <Route path="/tickets/:id" element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <TicketDetail />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-
-                <Route path="/clients" element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <Clients />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-
-                <Route path="/clients/:id" element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <ClientDetail />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-
-                <Route path="/assets" element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <Assets />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-
-                <Route path="/knowledge-base" element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <KnowledgeBase />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-
-                <Route path="/reports" element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <Reports />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-
                 <Route path="/analytics" element={
                   <ProtectedRoute>
                     <Layout>
@@ -207,18 +116,10 @@ const App: React.FC = () => {
                   </ProtectedRoute>
                 } />
 
-                <Route path="/settings" element={
+                <Route path="/sms" element={
                   <ProtectedRoute>
                     <Layout>
-                      <Settings />
-                    </Layout>
-                  </ProtectedRoute>
-                } />
-
-                <Route path="/profile" element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <Profile />
+                      <SMSPage />
                     </Layout>
                   </ProtectedRoute>
                 } />
