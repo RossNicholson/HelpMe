@@ -28,9 +28,9 @@ exports.seed = async function(knex) {
       status: 'active',
       start_date: '2025-01-01',
       end_date: '2025-12-31',
-      monthly_value: 2500.00,
+      monthly_rate: 2500.00,
       hourly_rate: 150.00,
-      included_hours: 40,
+      hours_per_month: 40,
       service_levels: JSON.stringify({
         response_time: {
           critical: '1 hour',
@@ -47,24 +47,8 @@ exports.seed = async function(knex) {
         late_fee: '1.5%',
         auto_renewal: true
       }),
-      scope_of_work: JSON.stringify({
-        services: [
-          '24/7 network monitoring',
-          'Helpdesk support',
-          'Security updates',
-          'Backup management',
-          'Vendor management',
-          'Quarterly reviews'
-        ],
-        exclusions: [
-          'Hardware purchases',
-          'Software licenses',
-          'Third-party services'
-        ]
-      }),
-      terms_and_conditions: 'Standard MSP service agreement terms apply. Services are provided on a best-effort basis with SLA guarantees as outlined above.',
+      terms_and_conditions: { text: 'Standard MSP service agreement terms apply. Services are provided on a best-effort basis with SLA guarantees as outlined above.' },
       notes: 'Premium client with high service expectations. Regular check-ins required.',
-      created_by: admin.id,
       created_at: new Date(),
       updated_at: new Date()
     },
@@ -78,9 +62,9 @@ exports.seed = async function(knex) {
       status: 'active',
       start_date: '2025-02-01',
       end_date: '2025-05-31',
-      monthly_value: 0.00,
+      monthly_rate: 0.00,
       hourly_rate: 125.00,
-      included_hours: 0,
+      hours_per_month: 0,
       service_levels: JSON.stringify({
         project_timeline: '4 months',
         milestone_deliverables: [
@@ -97,21 +81,8 @@ exports.seed = async function(knex) {
         deposit_required: '25%',
         progress_payments: true
       }),
-      scope_of_work: JSON.stringify({
-        deliverables: [
-          'Network assessment and documentation',
-          'Hardware procurement',
-          'Installation and configuration',
-          'Testing and validation',
-          'Staff training',
-          'Documentation and handover'
-        ],
-        hardware_included: false,
-        software_included: false
-      }),
-      terms_and_conditions: 'Project timeline and deliverables are subject to client approval and cooperation. Additional work outside scope will be billed separately.',
+      terms_and_conditions: { text: 'Project timeline and deliverables are subject to client approval and cooperation. Additional work outside scope will be billed separately.' },
       notes: 'Client has existing network that needs complete overhaul. Budget approved for Q1.',
-      created_by: admin.id,
       created_at: new Date(),
       updated_at: new Date()
     },
@@ -125,9 +96,9 @@ exports.seed = async function(knex) {
       status: 'draft',
       start_date: '2025-03-01',
       end_date: '2025-08-31',
-      monthly_value: 0.00,
+      monthly_rate: 0.00,
       hourly_rate: 95.00,
-      included_hours: 0,
+      hours_per_month: 0,
       service_levels: JSON.stringify({
         response_time: {
           critical: '4 hours',
@@ -143,24 +114,8 @@ exports.seed = async function(knex) {
         minimum_billing: '1 hour',
         emergency_rate: '150% of standard rate'
       }),
-      scope_of_work: JSON.stringify({
-        services: [
-          'Hardware troubleshooting',
-          'Software installation and configuration',
-          'Network connectivity issues',
-          'Virus and malware removal',
-          'Data recovery (basic)'
-        ],
-        exclusions: [
-          'Hardware replacement',
-          'Software licensing',
-          'Data recovery (advanced)',
-          'Training'
-        ]
-      }),
-      terms_and_conditions: 'Services provided on a time and materials basis. Emergency support available at premium rates.',
+      terms_and_conditions: { text: 'Services provided on a time and materials basis. Emergency support available at premium rates.' },
       notes: 'Draft contract pending client approval. Expected to be signed by end of February.',
-      created_by: admin.id,
       created_at: new Date(),
       updated_at: new Date()
     },
@@ -174,9 +129,9 @@ exports.seed = async function(knex) {
       status: 'expired',
       start_date: '2024-01-01',
       end_date: '2024-12-31',
-      monthly_value: 1500.00,
+      monthly_rate: 1500.00,
       hourly_rate: 100.00,
-      included_hours: 20,
+      hours_per_month: 20,
       service_levels: JSON.stringify({
         response_time: '48 hours',
         included_services: [
@@ -193,26 +148,10 @@ exports.seed = async function(knex) {
         unused_hours: 'Roll over to next month (max 40 hours)',
         overage_rate: 'Standard hourly rate'
       }),
-      scope_of_work: JSON.stringify({
-        services: [
-          'IT strategy development',
-          'Technology roadmapping',
-          'Vendor selection and management',
-          'Budget planning and optimization',
-          'Security assessments and recommendations',
-          'Compliance consulting'
-        ],
-        exclusions: [
-          'Implementation work',
-          'Hardware/software purchases',
-          'Emergency support'
-        ]
-      }),
-      terms_and_conditions: 'Retainer hours must be used within the contract period. Unused hours roll over with limitations.',
+      terms_and_conditions: { text: 'Retainer hours must be used within the contract period. Unused hours roll over with limitations.' },
       notes: 'Contract expired. Client considering renewal with expanded scope.',
-      created_by: admin.id,
-      created_at: new Date('2024-01-01'),
-      updated_at: new Date('2024-12-31')
+      created_at: new Date(),
+      updated_at: new Date()
     }
   ];
 

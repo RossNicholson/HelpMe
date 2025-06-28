@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const smsController = require('../controllers/smsController');
-const auth = require('../middleware/auth');
+const { protect } = require('../middleware/auth');
 
 // Apply authentication middleware to all routes
-router.use(auth);
+router.use(protect);
 
 // SMS Settings
 router.get('/settings', smsController.getSMSSettings);

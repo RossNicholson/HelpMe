@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const ticketController = require('../controllers/ticketController');
-const auth = require('../middleware/auth');
+const { protect } = require('../middleware/auth');
 
 // Apply authentication middleware to all routes
-router.use(auth);
+router.use(protect);
 
 // Ticket CRUD operations
 router.get('/organizations/:organizationId/tickets', ticketController.getTickets);

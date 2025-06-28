@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const slaController = require('../controllers/slaController');
-const auth = require('../middleware/auth');
+const { protect } = require('../middleware/auth');
 
 // Apply authentication middleware to all routes
-router.use(auth);
+router.use(protect);
 
 // SLA Definitions
 router.get('/organizations/:organizationId/sla-definitions', slaController.getSLADefinitions);

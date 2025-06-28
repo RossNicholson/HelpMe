@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const reportController = require('../controllers/reportController');
-const auth = require('../middleware/auth');
+const { protect } = require('../middleware/auth');
 
-router.use(auth);
+router.use(protect);
 
 router.get('/tickets', reportController.getTicketAnalytics);
 router.get('/sla', reportController.getSLACompliance);

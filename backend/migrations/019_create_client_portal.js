@@ -1,7 +1,7 @@
 exports.up = function(knex) {
   return knex.schema.createTable('client_portal_settings', (table) => {
     table.increments('id').primary();
-    table.integer('organization_id').unsigned().notNullable();
+    table.uuid('organization_id').notNullable();
     table.boolean('enabled').defaultTo(true);
     table.string('custom_domain').nullable();
     table.string('logo_url').nullable();
@@ -20,7 +20,7 @@ exports.up = function(knex) {
   })
   .createTable('client_sessions', (table) => {
     table.increments('id').primary();
-    table.integer('client_id').unsigned().notNullable();
+    table.uuid('client_id').notNullable();
     table.string('session_token', 255).notNullable();
     table.timestamp('expires_at').notNullable();
     table.string('ip_address').nullable();
@@ -33,8 +33,8 @@ exports.up = function(knex) {
   })
   .createTable('client_notifications', (table) => {
     table.increments('id').primary();
-    table.integer('client_id').unsigned().notNullable();
-    table.integer('ticket_id').unsigned().nullable();
+    table.uuid('client_id').notNullable();
+    table.uuid('ticket_id').nullable();
     table.string('type').notNullable(); // 'ticket_update', 'ticket_created', 'ticket_resolved', etc.
     table.string('title').notNullable();
     table.text('message').notNullable();

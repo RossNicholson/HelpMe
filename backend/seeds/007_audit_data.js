@@ -8,8 +8,10 @@ exports.seed = async function(knex) {
 
   // Get organization and user IDs for seeding
   const organizations = await knex('organizations').select('id');
-  const users = await knex('users').select('id', 'name', 'email', 'organization_id');
-  const tickets = await knex('tickets').select('id', 'title', 'organization_id').limit(10);
+  const users = await knex('users')
+    .join('user_organizations', 'users.id', 'user_organizations.user_id')
+    .select('users.id', 'users.first_name', 'users.last_name', 'users.email', 'user_organizations.organization_id');
+  const tickets = await knex('tickets').select('id', 'subject', 'organization_id').limit(10);
   const contracts = await knex('contracts').select('id', 'name', 'organization_id').limit(5);
   const clients = await knex('clients').select('id', 'name', 'organization_id').limit(5);
 
@@ -53,9 +55,8 @@ exports.seed = async function(knex) {
         user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         session_id: `session_${Math.random().toString(36).substr(2, 9)}`,
         severity: 'low',
-        description: `User ${randomUser.name} logged in`,
-        created_at: randomDate,
-        updated_at: randomDate
+        description: `User ${randomUser.first_name} ${randomUser.last_name} logged in`,
+        timestamp: randomDate
       });
     }
 
@@ -71,10 +72,10 @@ exports.seed = async function(knex) {
         action: 'CREATE',
         entity_type: 'tickets',
         entity_id: ticket.id,
-        entity_name: ticket.title,
+        entity_name: ticket.subject,
         old_values: null,
         new_values: JSON.stringify({ 
-          title: ticket.title,
+          subject: ticket.subject,
           status: 'open',
           priority: 'medium'
         }),
@@ -83,9 +84,8 @@ exports.seed = async function(knex) {
         user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         session_id: `session_${Math.random().toString(36).substr(2, 9)}`,
         severity: 'medium',
-        description: `Ticket "${ticket.title}" created`,
-        created_at: randomDate,
-        updated_at: randomDate
+        description: `Ticket "${ticket.subject}" created`,
+        timestamp: randomDate
       });
 
       // Ticket updates
@@ -99,7 +99,7 @@ exports.seed = async function(knex) {
           action: 'UPDATE',
           entity_type: 'tickets',
           entity_id: ticket.id,
-          entity_name: ticket.title,
+          entity_name: ticket.subject,
           old_values: JSON.stringify({ status: 'open' }),
           new_values: JSON.stringify({ status: 'in_progress' }),
           metadata: JSON.stringify({ field: 'status' }),
@@ -107,9 +107,8 @@ exports.seed = async function(knex) {
           user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
           session_id: `session_${Math.random().toString(36).substr(2, 9)}`,
           severity: 'medium',
-          description: `Ticket "${ticket.title}" status updated to in_progress`,
-          created_at: updateDate,
-          updated_at: updateDate
+          description: `Ticket "${ticket.subject}" status updated to in_progress`,
+          timestamp: randomDate
         });
       }
     }
@@ -137,8 +136,7 @@ exports.seed = async function(knex) {
         session_id: `session_${Math.random().toString(36).substr(2, 9)}`,
         severity: 'medium',
         description: `Contract "${contract.name}" created`,
-        created_at: randomDate,
-        updated_at: randomDate
+        timestamp: randomDate
       });
     }
 
@@ -162,8 +160,7 @@ exports.seed = async function(knex) {
         session_id: `session_${Math.random().toString(36).substr(2, 9)}`,
         severity: 'low',
         description: `Client "${client.name}" contact information updated`,
-        created_at: randomDate,
-        updated_at: randomDate
+        timestamp: randomDate
       });
     }
 
@@ -190,8 +187,7 @@ exports.seed = async function(knex) {
         session_id: null,
         severity: 'medium',
         description: 'Failed login attempt detected',
-        created_at: randomDate,
-        updated_at: randomDate
+        timestamp: randomDate
       });
     }
 
@@ -203,24 +199,22 @@ exports.seed = async function(knex) {
       auditLogs.push({
         organization_id: org.id,
         user_id: randomUser.id,
-        action: 'DELETE',
-        entity_type: 'tickets',
-        entity_id: Math.floor(Math.random() * 1000) + 1000,
-        entity_name: 'Deleted Ticket',
-        old_values: JSON.stringify({ 
-          title: 'Important System Issue',
-          status: 'open',
-          priority: 'high'
+        action: 'PERMISSION_CHANGE',
+        entity_type: 'users',
+        entity_id: randomUser.id,
+        entity_name: 'User Permissions',
+        old_values: JSON.stringify({ role: 'user' }),
+        new_values: JSON.stringify({ role: 'admin' }),
+        metadata: JSON.stringify({ 
+          changed_by: 'system_admin',
+          reason: 'Role promotion'
         }),
-        new_values: null,
-        metadata: JSON.stringify({ reason: 'User request' }),
         ip_address: `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`,
         user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         session_id: `session_${Math.random().toString(36).substr(2, 9)}`,
         severity: 'high',
-        description: 'High priority ticket deleted',
-        created_at: randomDate,
-        updated_at: randomDate
+        description: `User ${randomUser.first_name} ${randomUser.last_name} role changed to admin`,
+        timestamp: randomDate
       });
     }
   }
@@ -232,5 +226,6 @@ exports.seed = async function(knex) {
     await knex('audit_logs').insert(batch);
   }
 
-  console.log(`✅ Seeded ${auditLogs.length} audit log entries`);
+  console.log('✅ Audit log seed data created successfully');
+  console.log(`📊 Created ${auditLogs.length} audit log entries`);
 }; 

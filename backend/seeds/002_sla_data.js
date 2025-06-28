@@ -62,8 +62,8 @@ exports.seed = async function(knex) {
       resolution_time_hours: 4,
       business_hours_start: 9,
       business_hours_end: 17,
-      business_days: [1, 2, 3, 4, 5], // Monday to Friday
-      holidays: ['2024-12-25', '2024-01-01'], // Christmas and New Year
+      business_days: JSON.stringify([1, 2, 3, 4, 5]), // Monday to Friday
+      holidays: JSON.stringify(['2024-12-25', '2024-01-01']), // Christmas and New Year
       is_active: true
     },
     {
@@ -76,8 +76,8 @@ exports.seed = async function(knex) {
       resolution_time_hours: 8,
       business_hours_start: 9,
       business_hours_end: 17,
-      business_days: [1, 2, 3, 4, 5],
-      holidays: ['2024-12-25', '2024-01-01'],
+      business_days: JSON.stringify([1, 2, 3, 4, 5]),
+      holidays: JSON.stringify(['2024-12-25', '2024-01-01']),
       is_active: true
     },
     {
@@ -90,8 +90,8 @@ exports.seed = async function(knex) {
       resolution_time_hours: 24,
       business_hours_start: 9,
       business_hours_end: 17,
-      business_days: [1, 2, 3, 4, 5],
-      holidays: ['2024-12-25', '2024-01-01'],
+      business_days: JSON.stringify([1, 2, 3, 4, 5]),
+      holidays: JSON.stringify(['2024-12-25', '2024-01-01']),
       is_active: true
     },
     {
@@ -104,8 +104,8 @@ exports.seed = async function(knex) {
       resolution_time_hours: 48,
       business_hours_start: 9,
       business_hours_end: 17,
-      business_days: [1, 2, 3, 4, 5],
-      holidays: ['2024-12-25', '2024-01-01'],
+      business_days: JSON.stringify([1, 2, 3, 4, 5]),
+      holidays: JSON.stringify(['2024-12-25', '2024-01-01']),
       is_active: true
     },
     {
@@ -118,8 +118,8 @@ exports.seed = async function(knex) {
       resolution_time_hours: 72,
       business_hours_start: 9,
       business_hours_end: 17,
-      business_days: [1, 2, 3, 4, 5],
-      holidays: ['2024-12-25', '2024-01-01'],
+      business_days: JSON.stringify([1, 2, 3, 4, 5]),
+      holidays: JSON.stringify(['2024-12-25', '2024-01-01']),
       is_active: true
     }
   ];
@@ -136,7 +136,7 @@ exports.seed = async function(knex) {
       trigger_hours: 2,
       action_type: 'notify_manager',
       target_user_id: manager?.id,
-      notification_recipients: ['manager@example.com'],
+      notification_recipients: JSON.stringify(['manager@example.com']),
       is_active: true
     },
     {
@@ -166,7 +166,7 @@ exports.seed = async function(knex) {
       trigger_type: 'priority_change',
       trigger_priority: 'critical',
       action_type: 'notify_stakeholders',
-      notification_recipients: ['stakeholder@example.com', 'management@example.com'],
+      notification_recipients: JSON.stringify(['stakeholder@example.com', 'management@example.com']),
       is_active: true
     }
   ];

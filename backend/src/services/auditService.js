@@ -35,8 +35,7 @@ class AuditService {
         session_id: sessionId,
         severity,
         description,
-        created_at: new Date(),
-        updated_at: new Date()
+        timestamp: new Date()
       };
 
       await db('audit_logs').insert(auditLog);
@@ -115,7 +114,7 @@ class AuditService {
       let query = db('audit_logs')
         .select(
           'audit_logs.*',
-          'users.name as user_name',
+          db.raw('CONCAT(users.first_name, \' \', users.last_name) as user_name'),
           'users.email as user_email'
         )
         .leftJoin('users', 'audit_logs.user_id', 'users.id')
@@ -138,21 +137,21 @@ class AuditService {
         query = query.where('audit_logs.severity', filters.severity);
       }
       if (filters.start_date) {
-        query = query.where('audit_logs.created_at', '>=', filters.start_date);
+        query = query.where('audit_logs.timestamp', '>=', filters.start_date);
       }
       if (filters.end_date) {
-        query = query.where('audit_logs.created_at', '<=', filters.end_date);
+        query = query.where('audit_logs.timestamp', '<=', filters.end_date);
       }
       if (filters.search) {
         query = query.where(function() {
           this.where('audit_logs.description', 'like', `%${filters.search}%`)
             .orWhere('audit_logs.entity_name', 'like', `%${filters.search}%`)
-            .orWhere('users.name', 'like', `%${filters.search}%`);
+            .orWhere(db.raw('CONCAT(users.first_name, \' \', users.last_name)'), 'like', `%${filters.search}%`);
         });
       }
 
       const logs = await query
-        .orderBy('audit_logs.created_at', 'desc')
+        .orderBy('audit_logs.timestamp', 'desc')
         .limit(filters.limit || 100)
         .offset(filters.offset || 0);
 
@@ -169,14 +168,14 @@ class AuditService {
       const logs = await db('audit_logs')
         .select(
           'audit_logs.*',
-          'users.name as user_name',
+          db.raw('CONCAT(users.first_name, \' \', users.last_name) as user_name'),
           'users.email as user_email'
         )
         .leftJoin('users', 'audit_logs.user_id', 'users.id')
         .where('audit_logs.organization_id', organizationId)
         .where('audit_logs.entity_type', entityType)
         .where('audit_logs.entity_id', entityId)
-        .orderBy('audit_logs.created_at', 'desc');
+        .orderBy('audit_logs.timestamp', 'desc');
 
       return logs;
     } catch (error) {
@@ -193,14 +192,14 @@ class AuditService {
 
       const summary = await db('audit_logs')
         .where('organization_id', organizationId)
-        .where('created_at', '>=', startDate)
+        .where('timestamp', '>=', startDate)
         .select(
           db.raw('COUNT(*) as total_events'),
-          db.raw('COUNT(CASE WHEN severity = "critical" THEN 1 END) as critical_events'),
-          db.raw('COUNT(CASE WHEN severity = "high" THEN 1 END) as high_events'),
-          db.raw('COUNT(CASE WHEN severity = "medium" THEN 1 END) as medium_events'),
-          db.raw('COUNT(CASE WHEN action = "LOGIN" THEN 1 END) as login_events'),
-          db.raw('COUNT(CASE WHEN action = "DELETE" THEN 1 END) as delete_events'),
+          db.raw('COUNT(CASE WHEN severity = \'critical\' THEN 1 END) as critical_events'),
+          db.raw('COUNT(CASE WHEN severity = \'high\' THEN 1 END) as high_events'),
+          db.raw('COUNT(CASE WHEN severity = \'medium\' THEN 1 END) as medium_events'),
+          db.raw('COUNT(CASE WHEN action = \'LOGIN\' THEN 1 END) as login_events'),
+          db.raw('COUNT(CASE WHEN action = \'DELETE\' THEN 1 END) as delete_events'),
           db.raw('COUNT(DISTINCT user_id) as active_users')
         )
         .first();
@@ -218,13 +217,13 @@ class AuditService {
       const events = await db('audit_logs')
         .select(
           'audit_logs.*',
-          'users.name as user_name',
+          db.raw('CONCAT(users.first_name, \' \', users.last_name) as user_name'),
           'users.email as user_email'
         )
         .leftJoin('users', 'audit_logs.user_id', 'users.id')
         .where('audit_logs.organization_id', organizationId)
         .whereIn('audit_logs.severity', ['high', 'critical'])
-        .orderBy('audit_logs.created_at', 'desc')
+        .orderBy('audit_logs.timestamp', 'desc')
         .limit(limit);
 
       return events;
@@ -243,7 +242,7 @@ class AuditService {
       const activity = await db('audit_logs')
         .where('organization_id', organizationId)
         .where('user_id', userId)
-        .where('created_at', '>=', startDate)
+        .where('timestamp', '>=', startDate)
         .select(
           'action',
           'entity_type',
@@ -267,7 +266,7 @@ class AuditService {
 
       const deletedCount = await db('audit_logs')
         .where('organization_id', organizationId)
-        .where('created_at', '<', cutoffDate)
+        .where('timestamp', '<', cutoffDate)
         .where('severity', 'low') // Only delete low severity logs
         .del();
 
@@ -285,14 +284,14 @@ class AuditService {
       const logs = await db('audit_logs')
         .select(
           'audit_logs.*',
-          'users.name as user_name',
+          db.raw('CONCAT(users.first_name, \' \', users.last_name) as user_name'),
           'users.email as user_email'
         )
         .leftJoin('users', 'audit_logs.user_id', 'users.id')
         .where('audit_logs.organization_id', organizationId)
-        .where('audit_logs.created_at', '>=', startDate)
-        .where('audit_logs.created_at', '<=', endDate)
-        .orderBy('audit_logs.created_at', 'asc');
+        .where('audit_logs.timestamp', '>=', startDate)
+        .where('audit_logs.timestamp', '<=', endDate)
+        .orderBy('audit_logs.timestamp', 'asc');
 
       if (format === 'csv') {
         return this.convertToCSV(logs);
@@ -312,7 +311,7 @@ class AuditService {
       'Action', 'Entity Type', 'Entity ID', 'Entity Name',
       'Old Values', 'New Values', 'Metadata', 'IP Address',
       'User Agent', 'Session ID', 'Severity', 'Description',
-      'Created At', 'Updated At'
+      'Timestamp'
     ];
 
     const csvRows = [headers.join(',')];
@@ -336,8 +335,7 @@ class AuditService {
         log.session_id || '',
         log.severity,
         `"${(log.description || '').replace(/"/g, '""')}"`,
-        log.created_at,
-        log.updated_at
+        log.timestamp
       ];
       csvRows.push(row.join(','));
     }

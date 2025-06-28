@@ -4,18 +4,18 @@ import {
   CardContent, 
   CardHeader, 
   CardTitle 
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+} from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
 import { 
   Select, 
   SelectContent, 
   SelectItem, 
   SelectTrigger, 
   SelectValue 
-} from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
+} from '../../components/ui/select';
+import { Badge } from '../../components/ui/badge';
 import { 
   Table, 
   TableBody, 
@@ -23,29 +23,31 @@ import {
   TableHead, 
   TableHeader, 
   TableRow 
-} from '@/components/ui/table';
+} from '../../components/ui/table';
 import { 
   Dialog, 
   DialogContent, 
   DialogHeader, 
   DialogTitle, 
   DialogTrigger 
-} from '@/components/ui/dialog';
+} from '../../components/ui/dialog';
 import { 
   CalendarIcon, 
   Download, 
   Filter, 
   Search, 
-  Shield, 
+  Eye, 
+  Clock, 
   User, 
-  Clock,
-  AlertTriangle,
-  Info,
-  CheckCircle,
-  XCircle
+  Activity, 
+  AlertTriangle, 
+  CheckCircle, 
+  XCircle,
+  Shield,
+  Info
 } from 'lucide-react';
-import { DatePicker } from '@/components/ui/date-picker';
-import { api } from '@/services/api';
+import { DatePicker } from '../../components/ui/date-picker';
+import { api } from '../../services/api';
 
 interface AuditLog {
   id: number;
@@ -294,14 +296,14 @@ const AuditPage: React.FC = () => {
                   id="search"
                   placeholder="Search logs..."
                   value={filters.search}
-                  onChange={(e) => handleFilterChange('search', e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFilterChange('search', e.target.value)}
                   className="pl-8"
                 />
               </div>
             </div>
             <div>
               <Label htmlFor="action">Action</Label>
-              <Select value={filters.action} onValueChange={(value) => handleFilterChange('action', value)}>
+              <Select value={filters.action} onValueChange={(value: string) => handleFilterChange('action', value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="All actions" />
                 </SelectTrigger>
@@ -318,7 +320,7 @@ const AuditPage: React.FC = () => {
             </div>
             <div>
               <Label htmlFor="entity_type">Entity Type</Label>
-              <Select value={filters.entity_type} onValueChange={(value) => handleFilterChange('entity_type', value)}>
+              <Select value={filters.entity_type} onValueChange={(value: string) => handleFilterChange('entity_type', value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="All entities" />
                 </SelectTrigger>
@@ -335,7 +337,7 @@ const AuditPage: React.FC = () => {
             </div>
             <div>
               <Label htmlFor="severity">Severity</Label>
-              <Select value={filters.severity} onValueChange={(value) => handleFilterChange('severity', value)}>
+              <Select value={filters.severity} onValueChange={(value: string) => handleFilterChange('severity', value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="All severities" />
                 </SelectTrigger>

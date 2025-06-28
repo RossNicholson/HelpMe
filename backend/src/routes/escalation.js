@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const escalationController = require('../controllers/escalationController');
-const auth = require('../middleware/auth');
+const { protect } = require('../middleware/auth');
 
 // Apply authentication middleware to all routes
-router.use(auth);
+router.use(protect);
 
 // Escalation Rules
 router.get('/organizations/:organizationId/escalation-rules', escalationController.getEscalationRules);

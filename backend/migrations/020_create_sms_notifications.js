@@ -1,7 +1,7 @@
 exports.up = function(knex) {
   return knex.schema.createTable('sms_settings', (table) => {
     table.increments('id').primary();
-    table.integer('organization_id').unsigned().notNullable();
+    table.uuid('organization_id').notNullable();
     table.string('provider').notNullable().defaultTo('twilio'); // twilio, aws_sns, etc.
     table.string('account_sid').nullable();
     table.string('auth_token').nullable();
@@ -15,7 +15,7 @@ exports.up = function(knex) {
   })
   .createTable('sms_templates', (table) => {
     table.increments('id').primary();
-    table.integer('organization_id').unsigned().notNullable();
+    table.uuid('organization_id').notNullable();
     table.string('name').notNullable();
     table.string('type').notNullable(); // ticket_created, ticket_updated, sla_breach, etc.
     table.text('template').notNullable();
@@ -28,10 +28,10 @@ exports.up = function(knex) {
   })
   .createTable('sms_notifications', (table) => {
     table.increments('id').primary();
-    table.integer('organization_id').unsigned().notNullable();
-    table.integer('user_id').unsigned().nullable();
-    table.integer('client_id').unsigned().nullable();
-    table.integer('ticket_id').unsigned().nullable();
+    table.uuid('organization_id').notNullable();
+    table.uuid('user_id').nullable();
+    table.uuid('client_id').nullable();
+    table.uuid('ticket_id').nullable();
     table.string('to_number').notNullable();
     table.string('from_number').notNullable();
     table.text('message').notNullable();
@@ -54,7 +54,7 @@ exports.up = function(knex) {
   })
   .createTable('user_sms_preferences', (table) => {
     table.increments('id').primary();
-    table.integer('user_id').unsigned().notNullable();
+    table.uuid('user_id').notNullable();
     table.string('phone_number').notNullable();
     table.boolean('verified').defaultTo(false);
     table.timestamp('verified_at').nullable();
@@ -68,7 +68,7 @@ exports.up = function(knex) {
   })
   .createTable('client_sms_preferences', (table) => {
     table.increments('id').primary();
-    table.integer('client_id').unsigned().notNullable();
+    table.uuid('client_id').notNullable();
     table.string('phone_number').notNullable();
     table.boolean('verified').defaultTo(false);
     table.timestamp('verified_at').nullable();

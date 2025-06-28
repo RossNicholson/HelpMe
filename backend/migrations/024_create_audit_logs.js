@@ -5,11 +5,11 @@
 exports.up = function(knex) {
   return knex.schema.createTable('audit_logs', (table) => {
     table.increments('id').primary();
-    table.integer('organization_id').unsigned().notNullable();
-    table.integer('user_id').unsigned().nullable();
+    table.uuid('organization_id').notNullable();
+    table.uuid('user_id').nullable();
     table.string('action').notNullable().comment('CREATE, UPDATE, DELETE, LOGIN, LOGOUT, etc.');
     table.string('entity_type').notNullable().comment('tickets, contracts, clients, users, etc.');
-    table.integer('entity_id').unsigned().nullable().comment('ID of the affected record');
+    table.uuid('entity_id').nullable().comment('ID of the affected record');
     table.string('entity_name').nullable().comment('Human-readable name of the entity');
     table.json('old_values').nullable().comment('Previous values before change');
     table.json('new_values').nullable().comment('New values after change');
@@ -19,19 +19,19 @@ exports.up = function(knex) {
     table.string('session_id').nullable();
     table.enum('severity', ['low', 'medium', 'high', 'critical']).defaultTo('low');
     table.text('description').nullable();
-    table.timestamps(true, true);
+    table.timestamp('timestamp').notNullable().defaultTo(knex.fn.now());
 
     // Foreign key constraints
     table.foreign('organization_id').references('id').inTable('organizations').onDelete('CASCADE');
     table.foreign('user_id').references('id').inTable('users').onDelete('SET NULL');
 
     // Indexes for performance
-    table.index(['organization_id', 'created_at']);
-    table.index(['user_id', 'created_at']);
+    table.index(['organization_id', 'timestamp']);
+    table.index(['user_id', 'timestamp']);
     table.index(['entity_type', 'entity_id']);
-    table.index(['action', 'created_at']);
-    table.index(['severity', 'created_at']);
-    table.index(['created_at']);
+    table.index(['action', 'entity_type']);
+    table.index(['severity', 'timestamp']);
+    table.index(['timestamp']);
   });
 };
 

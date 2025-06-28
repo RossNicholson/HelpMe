@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const timeTrackingController = require('../controllers/timeTrackingController');
-const auth = require('../middleware/auth');
+const { protect } = require('../middleware/auth');
 
 // Apply authentication middleware to all routes
-router.use(auth);
+router.use(protect);
 
 // Time Entry Routes
 router.post('/time-entries', timeTrackingController.createTimeEntry);

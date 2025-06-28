@@ -200,7 +200,7 @@ const AnalyticsDashboard: React.FC = () => {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="activity_type" />
               <YAxis />
-              <Tooltip formatter={(value) => formatDuration(value)} />
+              <Tooltip formatter={(value: any) => formatDuration(value as number)} />
               <Bar dataKey="total" fill="#00C49F" />
             </BarChart>
           </ResponsiveContainer>
@@ -214,7 +214,7 @@ const AnalyticsDashboard: React.FC = () => {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="status" />
               <YAxis />
-              <Tooltip formatter={(value) => formatCurrency(value)} />
+              <Tooltip formatter={(value: any) => formatCurrency(value as number)} />
               <Bar dataKey="total" fill="#FFBB28" />
             </BarChart>
           </ResponsiveContainer>

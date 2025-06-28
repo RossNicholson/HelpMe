@@ -16,6 +16,13 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import AnalyticsPage from './pages/Analytics/AnalyticsPage';
 import SMSPage from './pages/SMS/SMSPage';
 import AuditPage from './pages/Audit/AuditPage';
+import BillingPage from './pages/Billing/BillingPage';
+import TicketsPage from './pages/Tickets/TicketsPage';
+import ClientsPage from './pages/Clients/ClientsPage';
+import AssetsPage from './pages/Assets/AssetsPage';
+import KnowledgeBasePage from './pages/KnowledgeBase/KnowledgeBasePage';
+import ReportsPage from './pages/Reports/ReportsPage';
+import SettingsPage from './pages/Settings/SettingsPage';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -129,6 +136,62 @@ const App: React.FC = () => {
                   <ProtectedRoute>
                     <Layout>
                       <AuditPage />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/billing" element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <BillingPage />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/tickets" element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <TicketsPage />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/clients" element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <ClientsPage />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/assets" element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <AssetsPage />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/knowledge-base" element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <KnowledgeBasePage />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/reports" element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <ReportsPage />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/settings" element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <SettingsPage />
                     </Layout>
                   </ProtectedRoute>
                 } />

@@ -3,10 +3,13 @@ exports.seed = async function(knex) {
   await knex('sms_templates').del();
   await knex('sms_settings').del();
 
-  // Insert SMS settings for organizations
+  // Fetch real UUID from the database
+  const [org1] = await knex('organizations').orderBy('created_at', 'asc').limit(1);
+
+  // Insert SMS settings for organization
   await knex('sms_settings').insert([
     {
-      organization_id: 1,
+      organization_id: org1.id,
       provider: 'twilio',
       enabled: false,
       created_at: new Date(),
@@ -17,7 +20,7 @@ exports.seed = async function(knex) {
   // Insert SMS templates
   await knex('sms_templates').insert([
     {
-      organization_id: 1,
+      organization_id: org1.id,
       name: 'Ticket Created',
       type: 'ticket_created',
       template: 'New ticket #{{ticket_id}} created: {{subject}}. Priority: {{priority}}. Assigned to: {{assigned_to}}.',
@@ -27,7 +30,7 @@ exports.seed = async function(knex) {
       updated_at: new Date()
     },
     {
-      organization_id: 1,
+      organization_id: org1.id,
       name: 'Ticket Updated',
       type: 'ticket_updated',
       template: 'Ticket #{{ticket_id}} updated: {{subject}}. Status: {{status}}. Updated by: {{updated_by}}.',
@@ -37,7 +40,7 @@ exports.seed = async function(knex) {
       updated_at: new Date()
     },
     {
-      organization_id: 1,
+      organization_id: org1.id,
       name: 'SLA Breach Warning',
       type: 'sla_breach_warning',
       template: 'WARNING: Ticket #{{ticket_id}} is approaching SLA breach. Time remaining: {{time_remaining}}. Please take action.',
@@ -47,7 +50,7 @@ exports.seed = async function(knex) {
       updated_at: new Date()
     },
     {
-      organization_id: 1,
+      organization_id: org1.id,
       name: 'SLA Breached',
       type: 'sla_breached',
       template: 'ALERT: Ticket #{{ticket_id}} has breached SLA by {{breach_time}}. Priority: {{priority}}. Immediate attention required.',
@@ -57,7 +60,7 @@ exports.seed = async function(knex) {
       updated_at: new Date()
     },
     {
-      organization_id: 1,
+      organization_id: org1.id,
       name: 'Escalation Notification',
       type: 'escalation',
       template: 'Ticket #{{ticket_id}} has been escalated to {{escalation_level}}. Reason: {{reason}}. Please review immediately.',
@@ -67,7 +70,7 @@ exports.seed = async function(knex) {
       updated_at: new Date()
     },
     {
-      organization_id: 1,
+      organization_id: org1.id,
       name: 'Client Ticket Update',
       type: 'client_ticket_update',
       template: 'Your ticket #{{ticket_id}} has been updated. Status: {{status}}. {{message}}',
@@ -77,7 +80,7 @@ exports.seed = async function(knex) {
       updated_at: new Date()
     },
     {
-      organization_id: 1,
+      organization_id: org1.id,
       name: 'Time Entry Reminder',
       type: 'time_entry_reminder',
       template: 'Reminder: Please log your time for ticket #{{ticket_id}}. Time spent: {{time_spent}}. Description: {{description}}.',
@@ -87,7 +90,7 @@ exports.seed = async function(knex) {
       updated_at: new Date()
     },
     {
-      organization_id: 1,
+      organization_id: org1.id,
       name: 'Invoice Ready',
       type: 'invoice_ready',
       template: 'Invoice #{{invoice_id}} is ready for review. Amount: {{amount}}. Due date: {{due_date}}. View at: {{invoice_url}}.',
@@ -97,7 +100,7 @@ exports.seed = async function(knex) {
       updated_at: new Date()
     },
     {
-      organization_id: 1,
+      organization_id: org1.id,
       name: 'Payment Reminder',
       type: 'payment_reminder',
       template: 'Payment reminder: Invoice #{{invoice_id}} for {{amount}} is due on {{due_date}}. Please process payment.',
@@ -107,7 +110,7 @@ exports.seed = async function(knex) {
       updated_at: new Date()
     },
     {
-      organization_id: 1,
+      organization_id: org1.id,
       name: 'System Alert',
       type: 'system_alert',
       template: 'SYSTEM ALERT: {{alert_type}} - {{message}}. Severity: {{severity}}. Please check system immediately.',

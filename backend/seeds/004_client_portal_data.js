@@ -4,10 +4,15 @@ exports.seed = async function(knex) {
   await knex('client_sessions').del();
   await knex('client_portal_settings').del();
 
-  // Insert client portal settings for organizations
+  // Fetch real UUIDs from the database
+  const [org1] = await knex('organizations').orderBy('created_at', 'asc').limit(1);
+  const [client1] = await knex('clients').orderBy('created_at', 'asc').limit(1);
+  const [ticket1] = await knex('tickets').orderBy('created_at', 'asc').limit(1);
+
+  // Insert client portal settings for the organization
   await knex('client_portal_settings').insert([
     {
-      organization_id: 1,
+      organization_id: org1.id,
       enabled: true,
       custom_domain: null,
       logo_url: 'https://example.com/logo.png',
@@ -23,57 +28,33 @@ exports.seed = async function(knex) {
         industry: { type: 'text' },
         preferred_contact: { type: 'select', options: ['Email', 'Phone', 'Portal'] }
       })
-    },
-    {
-      organization_id: 2,
-      enabled: true,
-      custom_domain: 'support.techcorp.com',
-      logo_url: 'https://techcorp.com/logo.png',
-      primary_color: '#10B981',
-      secondary_color: '#374151',
-      welcome_message: 'TechCorp Support Portal - Your IT solutions partner.',
-      allow_ticket_creation: true,
-      allow_knowledge_base_access: true,
-      allow_asset_viewing: true,
-      require_approval_for_tickets: true,
-      custom_fields: JSON.stringify({
-        service_tier: { type: 'select', options: ['Basic', 'Professional', 'Enterprise'] },
-        emergency_contact: { type: 'text' }
-      })
     }
   ]);
 
-  // Insert sample client sessions
+  // Insert sample client session
   await knex('client_sessions').insert([
     {
-      client_id: 1,
+      client_id: client1.id,
       session_token: 'sample_session_token_1',
       expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours from now
       ip_address: '192.168.1.100',
       user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-    },
-    {
-      client_id: 2,
-      session_token: 'sample_session_token_2',
-      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000),
-      ip_address: '192.168.1.101',
-      user_agent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
     }
   ]);
 
   // Insert sample client notifications
   await knex('client_notifications').insert([
     {
-      client_id: 1,
-      ticket_id: 1,
+      client_id: client1.id,
+      ticket_id: ticket1.id,
       type: 'ticket_created',
       title: 'Ticket Created Successfully',
       message: 'Your ticket "Network connectivity issues" has been created and assigned to our support team.',
       read: false
     },
     {
-      client_id: 1,
-      ticket_id: 1,
+      client_id: client1.id,
+      ticket_id: ticket1.id,
       type: 'ticket_updated',
       title: 'Ticket Status Updated',
       message: 'Your ticket "Network connectivity issues" status has been updated to "In Progress".',
@@ -81,15 +62,7 @@ exports.seed = async function(knex) {
       read_at: new Date()
     },
     {
-      client_id: 2,
-      ticket_id: 2,
-      type: 'ticket_created',
-      title: 'Ticket Created Successfully',
-      message: 'Your ticket "Software installation request" has been created and is pending approval.',
-      read: false
-    },
-    {
-      client_id: 2,
+      client_id: client1.id,
       ticket_id: null,
       type: 'system_notification',
       title: 'Portal Maintenance',

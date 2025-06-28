@@ -4,37 +4,32 @@
  */
 exports.up = function(knex) {
   return knex.schema.createTable('contracts', (table) => {
-    table.increments('id').primary();
-    table.integer('organization_id').unsigned().notNullable();
-    table.integer('client_id').unsigned().notNullable();
-    table.string('contract_number').notNullable().unique();
+    table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
+    table.uuid('organization_id').notNullable();
+    table.uuid('client_id').notNullable();
+    table.string('contract_number').notNullable();
     table.string('name').notNullable();
-    table.text('description');
-    table.enum('type', ['managed_services', 'project_based', 'hourly', 'retainer', 'break_fix']).notNullable();
-    table.enum('status', ['draft', 'active', 'expired', 'terminated', 'renewed']).defaultTo('draft');
+    table.text('description').nullable();
+    table.string('type').notNullable(); // 'managed_services', 'project_based', 'time_and_materials', 'retainer'
+    table.decimal('monthly_rate', 12, 2).nullable();
+    table.decimal('hourly_rate', 10, 2).nullable();
+    table.integer('hours_per_month').nullable();
     table.date('start_date').notNullable();
-    table.date('end_date').notNullable();
-    table.decimal('monthly_value', 10, 2).defaultTo(0);
-    table.decimal('hourly_rate', 10, 2).defaultTo(0);
-    table.integer('included_hours').defaultTo(0);
-    table.json('service_levels').comment('JSON object defining SLA terms');
-    table.json('billing_terms').comment('JSON object defining billing terms');
-    table.json('scope_of_work').comment('JSON object defining services included');
-    table.text('terms_and_conditions');
-    table.text('notes');
-    table.integer('created_by').unsigned().notNullable();
-    table.integer('updated_by').unsigned();
+    table.date('end_date').nullable();
+    table.string('status').notNullable().defaultTo('active'); // 'active', 'expired', 'terminated', 'draft'
+    table.json('terms_and_conditions').nullable();
+    table.json('service_levels').nullable();
+    table.json('billing_terms').nullable();
+    table.boolean('auto_renew').defaultTo(false);
+    table.integer('renewal_period_months').nullable();
+    table.decimal('early_termination_fee', 12, 2).nullable();
+    table.text('notes').nullable();
     table.timestamps(true, true);
-
-    // Foreign key constraints
+    
     table.foreign('organization_id').references('id').inTable('organizations').onDelete('CASCADE');
     table.foreign('client_id').references('id').inTable('clients').onDelete('CASCADE');
-    table.foreign('created_by').references('id').inTable('users').onDelete('CASCADE');
-    table.foreign('updated_by').references('id').inTable('users').onDelete('SET NULL');
-
-    // Indexes
+    table.unique(['contract_number']);
     table.index(['organization_id', 'client_id']);
-    table.index(['contract_number']);
     table.index(['status']);
     table.index(['start_date', 'end_date']);
   });
@@ -45,5 +40,5 @@ exports.up = function(knex) {
  * @returns { Promise<void> }
  */
 exports.down = function(knex) {
-  return knex.schema.dropTable('contracts');
+  return knex.schema.dropTableIfExists('contracts');
 }; 

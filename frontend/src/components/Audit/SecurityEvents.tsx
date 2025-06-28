@@ -4,9 +4,9 @@ import {
   CardContent, 
   CardHeader, 
   CardTitle 
-} from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+} from '../ui/card';
+import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
 import { 
   AlertTriangle, 
   Shield, 
@@ -15,7 +15,7 @@ import {
   XCircle,
   Info
 } from 'lucide-react';
-import { api } from '@/services/api';
+import { api } from '../../services/api';
 
 interface SecurityEvent {
   id: number;

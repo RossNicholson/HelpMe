@@ -120,17 +120,17 @@ const SMSSettings: React.FC = () => {
   };
 
   const deleteTemplate = async (templateId: number) => {
-    if (!confirm('Are you sure you want to delete this template?')) return;
-
-    try {
-      const response = await api.delete(`/sms/templates/${templateId}`);
-      if (response.data.success) {
-        toast.success('SMS template deleted successfully');
-        loadTemplates();
+    if (window.confirm('Are you sure you want to delete this template?')) {
+      try {
+        const response = await api.delete(`/sms/templates/${templateId}`);
+        if (response.data.success) {
+          toast.success('SMS template deleted successfully');
+          loadTemplates();
+        }
+      } catch (error: any) {
+        console.error('Failed to delete SMS template:', error);
+        toast.error(error.response?.data?.message || 'Failed to delete SMS template');
       }
-    } catch (error: any) {
-      console.error('Failed to delete SMS template:', error);
-      toast.error(error.response?.data?.message || 'Failed to delete SMS template');
     }
   };
 

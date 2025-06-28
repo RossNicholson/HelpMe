@@ -4,7 +4,7 @@
  */
 exports.up = function(knex) {
   return knex.schema.alterTable('tickets', (table) => {
-    table.integer('contract_id').unsigned().nullable();
+    table.uuid('contract_id').nullable();
     table.foreign('contract_id').references('id').inTable('contracts').onDelete('SET NULL');
     table.index(['contract_id']);
   });
