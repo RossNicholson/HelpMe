@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/auth');
-const knex = require('../utils/database');
+const db = require('../utils/database');
+const clientUserController = require('../controllers/clientUserController');
 
 /**
  * @swagger
@@ -17,13 +18,34 @@ const knex = require('../utils/database');
  */
 router.get('/', protect, async (req, res) => {
   try {
-    const clients = await knex('clients')
-      .where('organization_id', req.user.organization_id)
-      .orderBy('name');
+    const clients = await db('clients')
+      .select(
+        'clients.*',
+        'primary_contact.id as primary_contact_id',
+        'primary_contact.first_name as primary_contact_first_name',
+        'primary_contact.last_name as primary_contact_last_name',
+        'primary_contact.email as primary_contact_email',
+        'primary_contact.phone as primary_contact_phone'
+      )
+      .leftJoin('users as primary_contact', 'clients.primary_contact_id', 'primary_contact.id')
+      .where('clients.organization_id', req.user.organization_id)
+      .orderBy('clients.name');
+    
+    // Transform the data to include primary_contact object
+    const transformedClients = clients.map(client => ({
+      ...client,
+      primary_contact: client.primary_contact_id ? {
+        id: client.primary_contact_id,
+        first_name: client.primary_contact_first_name,
+        last_name: client.primary_contact_last_name,
+        email: client.primary_contact_email,
+        phone: client.primary_contact_phone
+      } : null
+    }));
     
     res.json({
       success: true,
-      data: clients
+      data: transformedClients
     });
   } catch (error) {
     res.status(500).json({ 
@@ -53,7 +75,7 @@ router.get('/', protect, async (req, res) => {
  */
 router.get('/:id', protect, async (req, res) => {
   try {
-    const client = await knex('clients')
+    const client = await db('clients')
       .where({ id: req.params.id, organization_id: req.user.organization_id })
       .first();
     
@@ -99,41 +121,98 @@ router.get('/:id', protect, async (req, res) => {
  */
 router.post('/', protect, async (req, res) => {
   try {
-    const { name, email, phone, address, notes } = req.body;
+    const { 
+      name, 
+      company_name,
+      website,
+      timezone,
+      address, 
+      notes,
+      contact_first_name,
+      contact_last_name,
+      contact_email,
+      contact_phone
+    } = req.body;
     
-    if (!name || !email) {
+    if (!name || !contact_first_name || !contact_last_name || !contact_email) {
       return res.status(400).json({ 
         success: false,
-        error: 'Name and email are required' 
+        error: 'Customer name, primary contact first name, last name, and email are required' 
       });
     }
     
-    // Prepare client data
-    const clientData = {
-      name,
-      email,
-      phone,
-      notes,
-      organization_id: req.user.organization_id
-    };
-    
-    // Handle address field - convert string to JSON if provided
-    if (address && typeof address === 'string') {
-      try {
-        clientData.address = JSON.parse(address);
-      } catch (e) {
-        // If it's not valid JSON, store as a simple object
-        clientData.address = { text: address };
+    // Use a transaction to create both client and primary contact
+    const result = await db.transaction(async (trx) => {
+      // Prepare client data
+      const clientData = {
+        name,
+        company_name,
+        website,
+        timezone: timezone || 'UTC',
+        notes,
+        organization_id: req.user.organization_id
+      };
+      
+      // Handle address field - convert string to JSON if provided
+      if (address && typeof address === 'string') {
+        try {
+          clientData.address = JSON.parse(address);
+        } catch (e) {
+          // If it's not valid JSON, store as a simple object
+          clientData.address = { text: address };
+        }
+      } else if (address) {
+        clientData.address = address;
       }
-    } else if (address) {
-      clientData.address = address;
-    }
-    
-    const [client] = await knex('clients').insert(clientData).returning('*');
+      
+      // Create the client first
+      const [client] = await trx('clients').insert(clientData).returning('*');
+      
+      // Create the primary contact user
+      const [primaryContact] = await trx('users').insert({
+        first_name: contact_first_name,
+        last_name: contact_last_name,
+        email: contact_email,
+        phone: contact_phone,
+        role: 'client',
+        is_active: true
+      }).returning('*');
+      
+      // Link the primary contact to the client
+      await trx('client_users').insert({
+        user_id: primaryContact.id,
+        client_id: client.id,
+        organization_id: req.user.organization_id,
+        role: 'primary_contact',
+        is_active: true,
+        can_create_tickets: true,
+        can_view_all_tickets: true
+      });
+      
+      // Update the client with the primary contact ID
+      const [updatedClient] = await trx('clients')
+        .where('id', client.id)
+        .update({ primary_contact_id: primaryContact.id })
+        .returning('*');
+      
+      // Return the client with primary contact information
+      const clientWithContact = {
+        ...updatedClient,
+        primary_contact: {
+          id: primaryContact.id,
+          first_name: primaryContact.first_name,
+          last_name: primaryContact.last_name,
+          email: primaryContact.email,
+          phone: primaryContact.phone
+        }
+      };
+      
+      return clientWithContact;
+    });
     
     res.status(201).json({
       success: true,
-      data: client
+      data: result
     });
   } catch (error) {
     console.error('Error creating client:', error);
@@ -165,46 +244,117 @@ router.post('/', protect, async (req, res) => {
  */
 router.put('/:id', protect, async (req, res) => {
   try {
-    const { name, email, phone, address, notes } = req.body;
+    const { 
+      name, 
+      company_name,
+      website,
+      timezone,
+      address, 
+      notes,
+      contact_first_name,
+      contact_last_name,
+      contact_email,
+      contact_phone
+    } = req.body;
     
-    // Prepare update data
-    const updateData = {
-      name,
-      email,
-      phone,
-      notes
-    };
-    
-    // Handle address field - convert string to JSON if provided
-    if (address && typeof address === 'string') {
-      try {
-        updateData.address = JSON.parse(address);
-      } catch (e) {
-        // If it's not valid JSON, store as a simple object
-        updateData.address = { text: address };
-      }
-    } else if (address) {
-      updateData.address = address;
+    if (!name) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Customer name is required' 
+      });
     }
     
-    const [client] = await knex('clients')
-      .where({ id: req.params.id, organization_id: req.user.organization_id })
-      .update(updateData)
-      .returning('*');
+    // Use a transaction to update both client and primary contact
+    const result = await db.transaction(async (trx) => {
+      // Get the current client
+      const currentClient = await trx('clients')
+        .where({ id: req.params.id, organization_id: req.user.organization_id })
+        .first();
+      
+      if (!currentClient) {
+        throw new Error('Client not found');
+      }
+      
+      // Prepare client update data
+      const clientUpdateData = {
+        name,
+        company_name,
+        website,
+        timezone: timezone || 'UTC',
+        notes
+      };
+      
+      // Handle address field - convert string to JSON if provided
+      if (address && typeof address === 'string') {
+        try {
+          clientUpdateData.address = JSON.parse(address);
+        } catch (e) {
+          // If it's not valid JSON, store as a simple object
+          clientUpdateData.address = { text: address };
+        }
+      } else if (address) {
+        clientUpdateData.address = address;
+      }
+      
+      // Update the client
+      const [updatedClient] = await trx('clients')
+        .where('id', req.params.id)
+        .update(clientUpdateData)
+        .returning('*');
+      
+      // Update primary contact if provided
+      if (contact_first_name && contact_last_name && contact_email && currentClient.primary_contact_id) {
+        await trx('users')
+          .where('id', currentClient.primary_contact_id)
+          .update({
+            first_name: contact_first_name,
+            last_name: contact_last_name,
+            email: contact_email,
+            phone: contact_phone
+          });
+      }
+      
+      // Get the updated client with primary contact information
+      const clientWithContact = await trx('clients')
+        .select(
+          'clients.*',
+          'primary_contact.id as primary_contact_id',
+          'primary_contact.first_name as primary_contact_first_name',
+          'primary_contact.last_name as primary_contact_last_name',
+          'primary_contact.email as primary_contact_email',
+          'primary_contact.phone as primary_contact_phone'
+        )
+        .leftJoin('users as primary_contact', 'clients.primary_contact_id', 'primary_contact.id')
+        .where('clients.id', req.params.id)
+        .first();
+      
+      // Transform the data to include primary_contact object
+      const transformedClient = {
+        ...clientWithContact,
+        primary_contact: clientWithContact.primary_contact_id ? {
+          id: clientWithContact.primary_contact_id,
+          first_name: clientWithContact.primary_contact_first_name,
+          last_name: clientWithContact.primary_contact_last_name,
+          email: clientWithContact.primary_contact_email,
+          phone: clientWithContact.primary_contact_phone
+        } : null
+      };
+      
+      return transformedClient;
+    });
     
-    if (!client) {
+    res.json({
+      success: true,
+      data: result
+    });
+  } catch (error) {
+    console.error('Error updating client:', error);
+    if (error.message === 'Client not found') {
       return res.status(404).json({ 
         success: false,
         error: 'Client not found' 
       });
     }
-    
-    res.json({
-      success: true,
-      data: client
-    });
-  } catch (error) {
-    console.error('Error updating client:', error);
     res.status(500).json({ 
       success: false,
       error: 'Failed to update client',
@@ -233,7 +383,7 @@ router.put('/:id', protect, async (req, res) => {
  */
 router.delete('/:id', protect, async (req, res) => {
   try {
-    const deleted = await knex('clients')
+    const deleted = await db('clients')
       .where({ id: req.params.id, organization_id: req.user.organization_id })
       .del();
     
@@ -255,5 +405,7 @@ router.delete('/:id', protect, async (req, res) => {
     });
   }
 });
+
+router.get('/:clientId/users', protect, clientUserController.getClientUsers);
 
 module.exports = router; 

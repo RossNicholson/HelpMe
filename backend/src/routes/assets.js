@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/auth');
+const db = require('../utils/database');
 
 /**
  * @swagger
@@ -16,7 +17,6 @@ const { protect } = require('../middleware/auth');
  */
 router.get('/', protect, async (req, res) => {
   try {
-    const db = req.app.get('db');
     const assets = await db('assets')
       .where('organization_id', req.user.organization_id)
       .orderBy('name');
@@ -47,7 +47,6 @@ router.get('/', protect, async (req, res) => {
  */
 router.get('/:id', protect, async (req, res) => {
   try {
-    const db = req.app.get('db');
     const asset = await db('assets')
       .where({ id: req.params.id, organization_id: req.user.organization_id })
       .first();
@@ -91,8 +90,6 @@ router.post('/', protect, async (req, res) => {
       return res.status(400).json({ error: 'Name and type are required' });
     }
     
-    const db = req.app.get('db');
-    
     const [asset] = await db('assets').insert({
       name,
       type,
@@ -131,7 +128,6 @@ router.post('/', protect, async (req, res) => {
 router.put('/:id', protect, async (req, res) => {
   try {
     const { name, type, description, serial_number, location, status, client_id } = req.body;
-    const db = req.app.get('db');
     
     const [asset] = await db('assets')
       .where({ id: req.params.id, organization_id: req.user.organization_id })
@@ -168,8 +164,6 @@ router.put('/:id', protect, async (req, res) => {
  */
 router.delete('/:id', protect, async (req, res) => {
   try {
-    const db = req.app.get('db');
-    
     const deleted = await db('assets')
       .where({ id: req.params.id, organization_id: req.user.organization_id })
       .del();

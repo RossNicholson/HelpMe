@@ -1,4 +1,4 @@
-const { db } = require('../utils/database');
+const db = require('../utils/database');
 const logger = require('../utils/logger');
 
 class AuditService {

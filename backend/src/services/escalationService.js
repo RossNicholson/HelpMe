@@ -1,4 +1,4 @@
-const knex = require('../utils/database');
+const db = require('../utils/database');
 const logger = require('../utils/logger');
 const emailService = require('./emailService');
 
@@ -8,7 +8,7 @@ class EscalationService {
    */
   async checkEscalationRules(ticketId) {
     try {
-      const ticket = await knex('tickets')
+      const ticket = await db('tickets')
         .where('id', ticketId)
         .first();
 
@@ -16,7 +16,7 @@ class EscalationService {
         throw new Error('Ticket not found');
       }
 
-      const escalationRules = await knex('escalation_rules')
+      const escalationRules = await db('escalation_rules')
         .where({
           organization_id: ticket.organization_id,
           is_active: true
@@ -104,7 +104,7 @@ class EscalationService {
    */
   async notifyManager(rule, ticket) {
     try {
-      const manager = await knex('users')
+      const manager = await db('users')
         .where('id', rule.target_user_id)
         .first();
 
@@ -135,7 +135,7 @@ class EscalationService {
         newAssigneeId = rule.target_user_id;
       } else if (rule.target_role_id) {
         // Find a user with the specified role
-        const userWithRole = await knex('user_organizations')
+        const userWithRole = await db('user_organizations')
           .where({
             organization_id: ticket.organization_id,
             role_id: rule.target_role_id
@@ -148,7 +148,7 @@ class EscalationService {
       }
 
       if (newAssigneeId && newAssigneeId !== ticket.assigned_to) {
-        await knex('tickets')
+        await db('tickets')
           .where('id', ticket.id)
           .update({
             assigned_to: newAssigneeId,
@@ -156,7 +156,7 @@ class EscalationService {
           });
 
         // Add a comment about the reassignment
-        await knex('ticket_comments').insert({
+        await db('ticket_comments').insert({
           ticket_id: ticket.id,
           user_id: null, // System comment
           content: `Ticket escalated and reassigned due to rule: ${rule.name}`,
@@ -176,7 +176,7 @@ class EscalationService {
   async changePriority(rule, ticket) {
     try {
       if (rule.new_priority && rule.new_priority !== ticket.priority) {
-        await knex('tickets')
+        await db('tickets')
           .where('id', ticket.id)
           .update({
             priority: rule.new_priority,
@@ -184,7 +184,7 @@ class EscalationService {
           });
 
         // Add a comment about the priority change
-        await knex('ticket_comments').insert({
+        await db('ticket_comments').insert({
           ticket_id: ticket.id,
           user_id: null, // System comment
           content: `Priority changed from ${ticket.priority} to ${rule.new_priority} due to escalation rule: ${rule.name}`,
@@ -226,7 +226,7 @@ class EscalationService {
    */
   async logEscalation(rule, ticket) {
     try {
-      await knex('ticket_comments').insert({
+      await db('ticket_comments').insert({
         ticket_id: ticket.id,
         user_id: null, // System comment
         content: `Escalation rule "${rule.name}" executed: ${rule.action_type}`,
@@ -244,7 +244,7 @@ class EscalationService {
    */
   async getEscalationStats(organizationId, startDate, endDate) {
     try {
-      const escalations = await knex('ticket_comments')
+      const escalations = await db('ticket_comments')
         .join('tickets', 'tickets.id', 'ticket_comments.ticket_id')
         .where('tickets.organization_id', organizationId)
         .where('ticket_comments.is_internal', true)

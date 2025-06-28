@@ -1,4 +1,4 @@
-const knex = require('../utils/database');
+const db = require('../utils/database');
 const logger = require('../utils/logger');
 
 class TimeTrackingService {
@@ -36,7 +36,7 @@ class TimeTrackingService {
         finalBillableRate = defaultRate?.hourly_rate || 0;
       }
 
-      const [timeEntry] = await knex('time_entries')
+      const [timeEntry] = await db('time_entries')
         .insert({
           ticket_id,
           user_id,
@@ -67,7 +67,7 @@ class TimeTrackingService {
    */
   async getTimeEntries(ticketId, filters = {}) {
     try {
-      let query = knex('time_entries')
+      let query = db('time_entries')
         .join('users', 'time_entries.user_id', 'users.id')
         .where('time_entries.ticket_id', ticketId)
         .select(
@@ -109,7 +109,7 @@ class TimeTrackingService {
     try {
       // If start_time or end_time changed, recalculate minutes_spent
       if (updateData.start_time || updateData.end_time) {
-        const currentEntry = await knex('time_entries').where('id', id).first();
+        const currentEntry = await db('time_entries').where('id', id).first();
         if (!currentEntry) {
           throw new Error('Time entry not found');
         }
@@ -125,7 +125,7 @@ class TimeTrackingService {
         updateData.minutes_spent = minutesSpent;
       }
 
-      const [updatedEntry] = await knex('time_entries')
+      const [updatedEntry] = await db('time_entries')
         .where('id', id)
         .update({
           ...updateData,
@@ -150,12 +150,12 @@ class TimeTrackingService {
    */
   async deleteTimeEntry(id) {
     try {
-      const timeEntry = await knex('time_entries').where('id', id).first();
+      const timeEntry = await db('time_entries').where('id', id).first();
       if (!timeEntry) {
         throw new Error('Time entry not found');
       }
 
-      await knex('time_entries').where('id', id).del();
+      await db('time_entries').where('id', id).del();
 
       // Update ticket's total time spent
       await this.updateTicketTimeSpent(timeEntry.ticket_id);
@@ -172,13 +172,13 @@ class TimeTrackingService {
    */
   async updateTicketTimeSpent(ticketId) {
     try {
-      const totalMinutes = await knex('time_entries')
+      const totalMinutes = await db('time_entries')
         .where('ticket_id', ticketId)
         .where('is_active', true)
         .sum('minutes_spent as total')
         .first();
 
-      await knex('tickets')
+      await db('tickets')
         .where('id', ticketId)
         .update({
           time_spent_minutes: parseInt(totalMinutes.total || 0),
@@ -196,7 +196,7 @@ class TimeTrackingService {
   async getDefaultBillingRate(organizationId, userId) {
     try {
       // First try to get user-specific rate
-      let rate = await knex('billing_rates')
+      let rate = await db('billing_rates')
         .where({
           organization_id: organizationId,
           user_id: userId,
@@ -210,7 +210,7 @@ class TimeTrackingService {
 
       // If no user-specific rate, get default rate
       if (!rate) {
-        rate = await knex('billing_rates')
+        rate = await db('billing_rates')
           .where({
             organization_id: organizationId,
             rate_type: 'default',
@@ -235,7 +235,7 @@ class TimeTrackingService {
   async getBillingRate(organizationId, userId, clientId, serviceType) {
     try {
       // Priority order: client-specific > user-specific > default
-      let rate = await knex('billing_rates')
+      let rate = await db('billing_rates')
         .where({
           organization_id: organizationId,
           client_id: clientId,
@@ -265,7 +265,7 @@ class TimeTrackingService {
     try {
       const { start_date, end_date, user_id, client_id } = filters;
 
-      let query = knex('time_entries')
+      let query = db('time_entries')
         .join('tickets', 'time_entries.ticket_id', 'tickets.id')
         .where('time_entries.organization_id', organizationId)
         .where('time_entries.is_active', true);
@@ -299,7 +299,7 @@ class TimeTrackingService {
 
       const totalAmount = await query
         .where('time_entries.is_billable', true)
-        .sum(knex.raw('(time_entries.minutes_spent * time_entries.billable_rate) / 60 as total_amount'))
+        .sum(db.raw('(time_entries.minutes_spent * time_entries.billable_rate) / 60 as total_amount'))
         .first();
 
       return {
@@ -326,7 +326,7 @@ class TimeTrackingService {
       const { start_date, end_date, include_non_billable = false } = filters;
 
       // Get unbilled time entries
-      let query = knex('time_entries')
+      let query = db('time_entries')
         .join('tickets', 'time_entries.ticket_id', 'tickets.id')
         .leftJoin('invoice_items', 'time_entries.id', 'invoice_items.time_entry_id')
         .where('tickets.client_id', clientId)
@@ -357,7 +357,7 @@ class TimeTrackingService {
       const dueDate = new Date();
       dueDate.setDate(dueDate.getDate() + 30); // 30 days from now
 
-      const [invoice] = await knex('invoices')
+      const [invoice] = await db('invoices')
         .insert({
           organization_id: organizationId,
           client_id: clientId,
@@ -375,7 +375,7 @@ class TimeTrackingService {
       const invoiceItems = [];
       for (const entry of timeEntries) {
         const amount = (entry.minutes_spent * entry.billable_rate) / 60;
-        const [invoiceItem] = await knex('invoice_items')
+        const [invoiceItem] = await db('invoice_items')
           .insert({
             invoice_id: invoice.id,
             time_entry_id: entry.id,
@@ -411,7 +411,7 @@ class TimeTrackingService {
     const year = new Date().getFullYear();
     const prefix = `INV-${year}-`;
     
-    const lastInvoice = await knex('invoices')
+    const lastInvoice = await db('invoices')
       .where('organization_id', organizationId)
       .where('invoice_number', 'like', `${prefix}%`)
       .orderBy('invoice_number', 'desc')

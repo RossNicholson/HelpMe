@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { protect, authorize } = require('../middleware/auth');
-const knex = require('../utils/database');
+const db = require('../utils/database');
 
 /**
  * @swagger
@@ -15,9 +15,9 @@ const knex = require('../utils/database');
  *       200:
  *         description: List of users
  */
-router.get('/', protect, authorize(['admin']), async (req, res) => {
+router.get('/', protect, authorize('admin'), async (req, res) => {
   try {
-    const users = await knex('users')
+    const users = await db('users')
       .select('id', 'email', 'first_name', 'last_name', 'role', 'organization_id', 'created_at')
       .where('organization_id', req.user.organization_id);
     
@@ -53,7 +53,7 @@ router.get('/', protect, authorize(['admin']), async (req, res) => {
  */
 router.get('/:id', protect, async (req, res) => {
   try {
-    const user = await knex('users')
+    const user = await db('users')
       .select('id', 'email', 'first_name', 'last_name', 'role', 'organization_id', 'created_at')
       .where({ id: req.params.id, organization_id: req.user.organization_id })
       .first();
@@ -101,7 +101,7 @@ router.get('/:id', protect, async (req, res) => {
  *       201:
  *         description: User created successfully
  */
-router.post('/', protect, authorize(['admin']), async (req, res) => {
+router.post('/', protect, authorize('admin'), async (req, res) => {
   try {
     const { email, password, first_name, last_name, role } = req.body;
     
@@ -112,10 +112,10 @@ router.post('/', protect, authorize(['admin']), async (req, res) => {
       });
     }
     
-    const bcrypt = require('bcrypt');
+    const bcrypt = require('bcryptjs');
     
     // Check if user already exists
-    const existingUser = await knex('users')
+    const existingUser = await db('users')
       .where({ email, organization_id: req.user.organization_id })
       .first();
     
@@ -128,7 +128,7 @@ router.post('/', protect, authorize(['admin']), async (req, res) => {
     
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    const [user] = await knex('users').insert({
+    const [user] = await db('users').insert({
       email,
       password_hash: hashedPassword,
       first_name,
@@ -184,7 +184,7 @@ router.put('/:id', protect, async (req, res) => {
     if (last_name) updateData.last_name = last_name;
     if (role && req.user.role === 'admin') updateData.role = role;
     
-    const [user] = await knex('users')
+    const [user] = await db('users')
       .where({ id: req.params.id, organization_id: req.user.organization_id })
       .update(updateData)
       .returning(['id', 'email', 'first_name', 'last_name', 'role', 'created_at']);
@@ -236,7 +236,7 @@ router.delete('/:id', protect, authorize('admin'), async (req, res) => {
       });
     }
     
-    const deleted = await knex('users')
+    const deleted = await db('users')
       .where({ id: req.params.id, organization_id: req.user.organization_id })
       .del();
     

@@ -1,4 +1,4 @@
-const knex = require('../utils/database');
+const db = require('../utils/database');
 const logger = require('../utils/logger');
 const emailService = require('./emailService');
 
@@ -27,7 +27,7 @@ class BillingService {
       }
 
       // Check for duplicate rates
-      const existingRate = await knex('billing_rates')
+      const existingRate = await db('billing_rates')
         .where({
           organization_id,
           user_id: user_id || null,
@@ -41,7 +41,7 @@ class BillingService {
         throw new Error('A billing rate with this configuration already exists');
       }
 
-      const [billingRate] = await knex('billing_rates')
+      const [billingRate] = await db('billing_rates')
         .insert({
           organization_id,
           user_id,
@@ -68,7 +68,7 @@ class BillingService {
    */
   async getBillingRates(organizationId, filters = {}) {
     try {
-      let query = knex('billing_rates')
+      let query = db('billing_rates')
         .where('organization_id', organizationId);
 
       if (filters.rate_type) {
@@ -105,7 +105,7 @@ class BillingService {
    */
   async updateBillingRate(id, updateData) {
     try {
-      const [updatedRate] = await knex('billing_rates')
+      const [updatedRate] = await db('billing_rates')
         .where('id', id)
         .update({
           ...updateData,
@@ -129,7 +129,7 @@ class BillingService {
    */
   async deleteBillingRate(id) {
     try {
-      const deleted = await knex('billing_rates')
+      const deleted = await db('billing_rates')
         .where('id', id)
         .del();
 
@@ -173,7 +173,7 @@ class BillingService {
       const taxAmount = (subtotal * tax_rate) / 100;
       const finalTotal = subtotal + taxAmount;
 
-      const [invoice] = await knex('invoices')
+      const [invoice] = await db('invoices')
         .insert({
           organization_id,
           client_id,
@@ -204,7 +204,7 @@ class BillingService {
    */
   async getInvoices(organizationId, filters = {}) {
     try {
-      let query = knex('invoices')
+      let query = db('invoices')
         .join('clients', 'invoices.client_id', 'clients.id')
         .where('invoices.organization_id', organizationId)
         .select(
@@ -239,7 +239,7 @@ class BillingService {
    */
   async getInvoice(id) {
     try {
-      const invoice = await knex('invoices')
+      const invoice = await db('invoices')
         .join('clients', 'invoices.client_id', 'clients.id')
         .where('invoices.id', id)
         .select(
@@ -255,7 +255,7 @@ class BillingService {
       }
 
       // Get invoice items
-      const items = await knex('invoice_items')
+      const items = await db('invoice_items')
         .leftJoin('time_entries', 'invoice_items.time_entry_id', 'time_entries.id')
         .leftJoin('tickets', 'invoice_items.ticket_id', 'tickets.id')
         .where('invoice_items.invoice_id', id)
@@ -290,7 +290,7 @@ class BillingService {
         updateData.balance_due = 0;
       }
 
-      const [updatedInvoice] = await knex('invoices')
+      const [updatedInvoice] = await db('invoices')
         .where('id', id)
         .update({
           ...updateData,
@@ -330,7 +330,7 @@ class BillingService {
         metadata = {}
       } = itemData;
 
-      const [invoiceItem] = await knex('invoice_items')
+      const [invoiceItem] = await db('invoice_items')
         .insert({
           invoice_id: invoiceId,
           time_entry_id,
@@ -359,13 +359,13 @@ class BillingService {
    */
   async updateInvoiceTotals(invoiceId) {
     try {
-      const items = await knex('invoice_items')
+      const items = await db('invoice_items')
         .where('invoice_id', invoiceId)
         .select('amount');
 
       const subtotal = items.reduce((sum, item) => sum + parseFloat(item.amount), 0);
 
-      const invoice = await knex('invoices')
+      const invoice = await db('invoices')
         .where('id', invoiceId)
         .first();
 
@@ -377,7 +377,7 @@ class BillingService {
       const totalAmount = subtotal + taxAmount;
       const balanceDue = totalAmount - parseFloat(invoice.amount_paid || 0);
 
-      await knex('invoices')
+      await db('invoices')
         .where('id', invoiceId)
         .update({
           subtotal,
@@ -420,7 +420,7 @@ class BillingService {
     try {
       const { start_date, end_date, client_id } = filters;
 
-      let query = knex('invoices')
+      let query = db('invoices')
         .where('organization_id', organizationId);
 
       if (start_date && end_date) {

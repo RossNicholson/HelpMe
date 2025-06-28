@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/auth');
+const db = require('../utils/database');
 
 /**
  * @swagger
@@ -16,7 +17,6 @@ const { protect } = require('../middleware/auth');
  */
 router.get('/', protect, async (req, res) => {
   try {
-    const db = req.app.get('db');
     const notifications = await db('notifications')
       .where('user_id', req.user.id)
       .orderBy('created_at', 'desc')
@@ -48,7 +48,6 @@ router.get('/', protect, async (req, res) => {
  */
 router.get('/:id', protect, async (req, res) => {
   try {
-    const db = req.app.get('db');
     const notification = await db('notifications')
       .where({ id: req.params.id, user_id: req.user.id })
       .first();
@@ -83,8 +82,6 @@ router.get('/:id', protect, async (req, res) => {
  */
 router.put('/:id/read', protect, async (req, res) => {
   try {
-    const db = req.app.get('db');
-    
     const [notification] = await db('notifications')
       .where({ id: req.params.id, user_id: req.user.id })
       .update({ read_at: new Date() })
@@ -114,8 +111,6 @@ router.put('/:id/read', protect, async (req, res) => {
  */
 router.put('/read-all', protect, async (req, res) => {
   try {
-    const db = req.app.get('db');
-    
     await db('notifications')
       .where({ user_id: req.user.id, read_at: null })
       .update({ read_at: new Date() });
@@ -146,8 +141,6 @@ router.put('/read-all', protect, async (req, res) => {
  */
 router.delete('/:id', protect, async (req, res) => {
   try {
-    const db = req.app.get('db');
-    
     const deleted = await db('notifications')
       .where({ id: req.params.id, user_id: req.user.id })
       .del();

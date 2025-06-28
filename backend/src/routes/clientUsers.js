@@ -15,19 +15,19 @@ const {
 router.use(protect);
 
 // Get all users for a specific client (admin/technician only)
-router.get('/clients/:clientId/users', authorize(['admin', 'technician']), getClientUsers);
+router.get('/clients/:clientId/users', authorize('admin', 'technician'), getClientUsers);
 
 // Get all clients for the current user
 router.get('/my-clients', getUserClients);
 
 // Add a user to a client (admin/technician only)
-router.post('/clients/:clientId/users', authorize(['admin', 'technician']), addUserToClient);
+router.post('/clients/:clientId/users', authorize('admin', 'technician'), addUserToClient);
 
 // Update client user role and permissions (admin/technician only)
-router.put('/client-users/:clientUserId', authorize(['admin', 'technician']), updateClientUser);
+router.put('/client-users/:clientUserId', authorize('admin', 'technician'), updateClientUser);
 
 // Remove user from client (admin/technician only)
-router.delete('/clients/:clientId/users/:userId', authorize(['admin', 'technician']), removeUserFromClient);
+router.delete('/clients/:clientId/users/:userId', authorize('admin', 'technician'), removeUserFromClient);
 
 // Get primary contact for a client
 router.get('/clients/:clientId/primary-contact', getClientPrimaryContact);
