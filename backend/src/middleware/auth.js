@@ -2,6 +2,12 @@ const jwt = require('jsonwebtoken');
 const { db } = require('../utils/database');
 const logger = require('../utils/logger');
 
+// Validate JWT secret is configured
+if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+  logger.error('JWT_SECRET environment variable is not properly configured. Must be at least 32 characters long.');
+  process.exit(1);
+}
+
 const protect = async (req, res, next) => {
   let token;
 
@@ -10,8 +16,22 @@ const protect = async (req, res, next) => {
       // Get token from header
       token = req.headers.authorization.split(' ')[1];
 
+      if (!token) {
+        return res.status(401).json({
+          success: false,
+          error: 'Token is required'
+        });
+      }
+
       // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      if (!decoded || !decoded.id) {
+        return res.status(401).json({
+          success: false,
+          error: 'Invalid token format'
+        });
+      }
 
       // Get user from token
       const user = await db('users')
@@ -30,14 +50,27 @@ const protect = async (req, res, next) => {
       next();
     } catch (error) {
       logger.error('Token verification failed:', error);
+      
+      if (error.name === 'TokenExpiredError') {
+        return res.status(401).json({
+          success: false,
+          error: 'Token has expired'
+        });
+      }
+      
+      if (error.name === 'JsonWebTokenError') {
+        return res.status(401).json({
+          success: false,
+          error: 'Invalid token'
+        });
+      }
+
       return res.status(401).json({
         success: false,
         error: 'Not authorized to access this route'
       });
     }
-  }
-
-  if (!token) {
+  } else {
     return res.status(401).json({
       success: false,
       error: 'Not authorized to access this route'

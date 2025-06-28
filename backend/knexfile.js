@@ -1,14 +1,15 @@
+require('dotenv').config();
 const path = require('path');
 
 module.exports = {
   development: {
     client: 'postgresql',
-    connection: process.env.DATABASE_URL || {
+    connection: {
       host: process.env.DB_HOST || 'localhost',
       port: process.env.DB_PORT || 5432,
+      database: process.env.DB_NAME || 'helpme_dev',
       user: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASSWORD || 'password',
-      database: process.env.DB_NAME || 'helpme',
+      password: process.env.DB_PASSWORD,
     },
     migrations: {
       directory: path.join(__dirname, 'migrations'),
@@ -18,6 +19,10 @@ module.exports = {
       directory: path.join(__dirname, 'seeds'),
     },
     debug: true,
+    pool: {
+      min: 2,
+      max: 10
+    }
   },
 
   test: {
@@ -40,10 +45,13 @@ module.exports = {
 
   production: {
     client: 'postgresql',
-    connection: process.env.DATABASE_URL,
-    pool: {
-      min: 2,
-      max: 10,
+    connection: {
+      host: process.env.DB_HOST,
+      port: process.env.DB_PORT || 5432,
+      database: process.env.DB_NAME,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
     },
     migrations: {
       directory: path.join(__dirname, 'migrations'),
@@ -52,5 +60,9 @@ module.exports = {
     seeds: {
       directory: path.join(__dirname, 'seeds'),
     },
+    pool: {
+      min: 2,
+      max: 10
+    }
   },
 }; 
