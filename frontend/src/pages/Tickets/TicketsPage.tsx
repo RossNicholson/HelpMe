@@ -7,6 +7,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
+import { Search, Filter, X } from 'lucide-react';
 import { ticketsAPI, clientsAPI } from '../../services/api';
 
 interface Ticket {
@@ -30,6 +32,7 @@ interface Client {
 const TicketsPage: React.FC = () => {
   const navigate = useNavigate();
   const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [filteredTickets, setFilteredTickets] = useState<Ticket[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -37,6 +40,14 @@ const TicketsPage: React.FC = () => {
   const [creating, setCreating] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [showViewModal, setShowViewModal] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    search: '',
+    status: '',
+    priority: '',
+    client_id: '',
+    assigned_to: ''
+  });
   const [formData, setFormData] = useState({
     subject: '',
     description: '',
@@ -49,6 +60,10 @@ const TicketsPage: React.FC = () => {
     fetchTickets();
     fetchClients();
   }, []);
+
+  useEffect(() => {
+    applyFilters();
+  }, [tickets, filters]);
 
   const fetchTickets = async () => {
     try {
@@ -76,6 +91,56 @@ const TicketsPage: React.FC = () => {
       console.error('Error fetching clients:', error);
       setClients([]);
     }
+  };
+
+  const applyFilters = () => {
+    let filtered = [...tickets];
+
+    // Search filter
+    if (filters.search) {
+      const searchTerm = filters.search.toLowerCase();
+      filtered = filtered.filter(ticket =>
+        ticket.subject.toLowerCase().includes(searchTerm) ||
+        ticket.description.toLowerCase().includes(searchTerm) ||
+        ticket.client_name.toLowerCase().includes(searchTerm) ||
+        (ticket.assignee_first_name && ticket.assignee_first_name.toLowerCase().includes(searchTerm)) ||
+        (ticket.assignee_last_name && ticket.assignee_last_name.toLowerCase().includes(searchTerm))
+      );
+    }
+
+    // Status filter
+    if (filters.status) {
+      filtered = filtered.filter(ticket => ticket.status === filters.status);
+    }
+
+    // Priority filter
+    if (filters.priority) {
+      filtered = filtered.filter(ticket => ticket.priority === filters.priority);
+    }
+
+    // Client filter
+    if (filters.client_id) {
+      filtered = filtered.filter(ticket => ticket.client_name === filters.client_id);
+    }
+
+    setFilteredTickets(filtered);
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      search: '',
+      status: '',
+      priority: '',
+      client_id: '',
+      assigned_to: ''
+    });
+  };
+
+  const handleFilterChange = (key: string, value: string) => {
+    setFilters(prev => ({
+      ...prev,
+      [key]: value
+    }));
   };
 
   const handleCreateTicket = async () => {
@@ -177,6 +242,132 @@ const TicketsPage: React.FC = () => {
         </Link>
       </div>
 
+      {/* Search and Filters */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Search className="h-5 w-5" />
+              Search & Filters
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center gap-2"
+              >
+                <Filter className="h-4 w-4" />
+                {showFilters ? 'Hide Filters' : 'Show Filters'}
+              </Button>
+              {(filters.search || filters.status || filters.priority || filters.client_id) && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={clearFilters}
+                  className="flex items-center gap-2"
+                >
+                  <X className="h-4 w-4" />
+                  Clear
+                </Button>
+              )}
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {/* Search Bar */}
+          <div className="mb-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search tickets by subject, description, client, or assignee..."
+                value={filters.search}
+                onChange={(e) => handleFilterChange('search', e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+
+          {/* Filters */}
+          {showFilters && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div>
+                <Label htmlFor="status-filter">Status</Label>
+                <Select value={filters.status} onValueChange={(value) => handleFilterChange('status', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All statuses" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">All statuses</SelectItem>
+                    <SelectItem value="unassigned">Unassigned</SelectItem>
+                    <SelectItem value="assigned">Assigned</SelectItem>
+                    <SelectItem value="in_progress">In Progress</SelectItem>
+                    <SelectItem value="closed">Closed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="priority-filter">Priority</Label>
+                <Select value={filters.priority} onValueChange={(value) => handleFilterChange('priority', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All priorities" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">All priorities</SelectItem>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="critical">Critical</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="client-filter">Client</Label>
+                <Select value={filters.client_id} onValueChange={(value) => handleFilterChange('client_id', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All clients" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">All clients</SelectItem>
+                    {clients.map((client) => (
+                      <SelectItem key={client.id} value={client.name}>
+                        {client.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="assigned-filter">Assigned To</Label>
+                <Select value={filters.assigned_to} onValueChange={(value) => handleFilterChange('assigned_to', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All assignees" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">All assignees</SelectItem>
+                    <SelectItem value="unassigned">Unassigned</SelectItem>
+                    {/* This would need to be populated with actual users */}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+
+          {/* Results Summary */}
+          <div className="mt-4 text-sm text-gray-600">
+            Showing {filteredTickets.length} of {tickets.length} tickets
+            {(filters.search || filters.status || filters.priority || filters.client_id) && (
+              <span className="ml-2 text-blue-600">
+                (filtered)
+              </span>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle>All Tickets</CardTitle>
@@ -196,14 +387,17 @@ const TicketsPage: React.FC = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {tickets.length === 0 ? (
+              {filteredTickets.length === 0 ? (
                 <TableRow>
                   <td colSpan={8} className="text-center py-8 text-gray-500">
-                    No tickets found. Create your first ticket to get started.
+                    {tickets.length === 0 
+                      ? 'No tickets found. Create your first ticket to get started.'
+                      : 'No tickets match your current filters. Try adjusting your search criteria.'
+                    }
                   </td>
                 </TableRow>
               ) : (
-                tickets.map((ticket) => (
+                filteredTickets.map((ticket) => (
                   <TableRow key={ticket.id}>
                     <TableCell className="font-mono">#{ticket.id}</TableCell>
                     <TableCell className="font-medium">{ticket.subject}</TableCell>
