@@ -4,6 +4,7 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
+import { Tooltip, QuestionMarkIcon } from '../../components/ui/tooltip';
 
 const SettingsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('general');
@@ -47,11 +48,21 @@ const SettingsPage: React.FC = () => {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="company-name">Company Name</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="company-name">Company Name</Label>
+                    <Tooltip content="Your organization's name as it will appear in the system, on invoices, and in client communications.">
+                      <QuestionMarkIcon />
+                    </Tooltip>
+                  </div>
                   <Input id="company-name" placeholder="Your Company Name" />
                 </div>
                 <div>
-                  <Label htmlFor="timezone">Timezone</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="timezone">Timezone</Label>
+                    <Tooltip content="Your organization's timezone. This affects how dates and times are displayed throughout the system.">
+                      <QuestionMarkIcon />
+                    </Tooltip>
+                  </div>
                   <Select>
                     <SelectTrigger>
                       <SelectValue placeholder="Select timezone" />
@@ -65,7 +76,12 @@ const SettingsPage: React.FC = () => {
                 </div>
               </div>
               <div>
-                <Label htmlFor="email">Support Email</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="email">Support Email</Label>
+                  <Tooltip content="Primary email address for support communications. This is where system notifications and alerts will be sent.">
+                    <QuestionMarkIcon />
+                  </Tooltip>
+                </div>
                 <Input id="email" type="email" placeholder="support@company.com" />
               </div>
               <Button>Save Changes</Button>

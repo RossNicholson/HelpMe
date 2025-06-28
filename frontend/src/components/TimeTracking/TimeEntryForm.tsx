@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { api } from '../../services/api';
+import { Tooltip, QuestionMarkIcon } from '../../components/ui/tooltip';
 
 interface TimeEntryFormProps {
   ticketId: string;
@@ -113,9 +114,14 @@ const TimeEntryForm: React.FC<TimeEntryFormProps> = ({
       
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Description *
-          </label>
+          <div className="flex items-center gap-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Description *
+            </label>
+            <Tooltip content="Provide a detailed description of the work performed. This helps with billing, reporting, and future reference.">
+              <QuestionMarkIcon />
+            </Tooltip>
+          </div>
           <textarea
             required
             value={formData.description}
@@ -128,9 +134,14 @@ const TimeEntryForm: React.FC<TimeEntryFormProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Start Time *
-            </label>
+            <div className="flex items-center gap-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Start Time *
+              </label>
+              <Tooltip content="The exact time when you started working on this task. Use the datetime picker for accurate tracking.">
+                <QuestionMarkIcon />
+              </Tooltip>
+            </div>
             <input
               type="datetime-local"
               required
@@ -141,9 +152,14 @@ const TimeEntryForm: React.FC<TimeEntryFormProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              End Time *
-            </label>
+            <div className="flex items-center gap-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                End Time *
+              </label>
+              <Tooltip content="The exact time when you finished working on this task. Duration is automatically calculated.">
+                <QuestionMarkIcon />
+              </Tooltip>
+            </div>
             <input
               type="datetime-local"
               required
@@ -156,9 +172,14 @@ const TimeEntryForm: React.FC<TimeEntryFormProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Activity Type
-            </label>
+            <div className="flex items-center gap-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Activity Type
+              </label>
+              <Tooltip content="Work: Direct client work. Research: Investigation and analysis. Meeting: Client or team meetings. Travel: Travel time to client sites. Other: Miscellaneous activities.">
+                <QuestionMarkIcon />
+              </Tooltip>
+            </div>
             <select
               value={formData.activity_type}
               onChange={(e) => setFormData({ ...formData, activity_type: e.target.value as any })}
@@ -173,9 +194,14 @@ const TimeEntryForm: React.FC<TimeEntryFormProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Billing Rate ($/hr)
-            </label>
+            <div className="flex items-center gap-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Billing Rate ($/hr)
+              </label>
+              <Tooltip content="The hourly rate that will be charged to the client for this time entry. Select from your configured billing rates.">
+                <QuestionMarkIcon />
+              </Tooltip>
+            </div>
             <select
               value={formData.billable_rate}
               onChange={(e) => setFormData({ ...formData, billable_rate: parseFloat(e.target.value) })}
@@ -190,15 +216,20 @@ const TimeEntryForm: React.FC<TimeEntryFormProps> = ({
           </div>
 
           <div className="flex items-center">
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={formData.is_billable}
-                onChange={(e) => setFormData({ ...formData, is_billable: e.target.checked })}
-                className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <span className="text-sm font-medium text-gray-700">Billable</span>
-            </label>
+            <div className="flex items-center gap-2">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={formData.is_billable}
+                  onChange={(e) => setFormData({ ...formData, is_billable: e.target.checked })}
+                  className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <span className="text-sm font-medium text-gray-700">Billable</span>
+              </label>
+              <Tooltip content="Check this box if this time should be billed to the client. Uncheck for internal work or non-billable activities.">
+                <QuestionMarkIcon />
+              </Tooltip>
+            </div>
           </div>
         </div>
 

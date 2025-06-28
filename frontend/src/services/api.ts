@@ -94,6 +94,15 @@ export const clientsAPI = {
   delete: (id: string) => api.delete(`/clients/${id}`),
 };
 
+export const clientUsersAPI = {
+  getClientUsers: (clientId: string) => api.get(`/client-users/clients/${clientId}/users`),
+  addUserToClient: (clientId: string, userData: any) => api.post(`/client-users/clients/${clientId}/users`, userData),
+  updateClientUser: (clientUserId: string, userData: any) => api.put(`/client-users/${clientUserId}`, userData),
+  removeUserFromClient: (clientId: string, userId: string) => api.delete(`/client-users/clients/${clientId}/users/${userId}`),
+  getClientPrimaryContact: (clientId: string) => api.get(`/client-users/clients/${clientId}/primary-contact`),
+  checkUserPermissions: (clientId: string) => api.get(`/client-users/clients/${clientId}/permissions`),
+};
+
 export const assetsAPI = {
   getAll: (params?: any) => api.get('/assets', { params }),
   getById: (id: string) => api.get(`/assets/${id}`),

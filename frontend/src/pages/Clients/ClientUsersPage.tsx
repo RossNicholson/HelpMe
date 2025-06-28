@@ -10,6 +10,8 @@ import { Badge } from '../../components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../../components/ui/dialog';
 import { Textarea } from '../../components/ui/textarea';
 import { clientsAPI } from '../../services/api';
+import { Tooltip, QuestionMarkIcon } from '../../components/ui/tooltip';
+import { Plus } from 'lucide-react';
 
 interface ClientUser {
   id: string;
@@ -172,7 +174,7 @@ const ClientUsersPage: React.FC = () => {
   };
 
   const handleRemoveUser = async (userId: string) => {
-    if (!confirm('Are you sure you want to remove this user from the client?')) return;
+    if (!window.confirm('Are you sure you want to remove this user from the client?')) return;
     
     try {
       const response = await fetch(`/api/client-users/clients/${clientId}/users/${userId}`, {
@@ -225,18 +227,24 @@ const ClientUsersPage: React.FC = () => {
     <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold">Client Users</h1>
-          <p className="text-gray-600">
-            Manage users for {client?.name || 'Client'}
+          <h1 className="text-3xl font-bold text-gray-900">Customer Users</h1>
+          <p className="text-gray-600 mt-1">
+            Manage ITIL Users within {client?.name || 'Customer'} - individuals who consume your IT services
           </p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button>Add User to Client</Button>
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Customer User
+            </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-[600px]">
             <DialogHeader>
-              <DialogTitle>Add User to Client</DialogTitle>
+              <DialogTitle>Add Customer User</DialogTitle>
+              <p className="text-sm text-gray-600">
+                Add a new ITIL User to {client?.name || 'this customer'}. Users are individuals within the customer organization who consume your IT services.
+              </p>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
@@ -257,7 +265,12 @@ const ClientUsersPage: React.FC = () => {
                 </Select>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="role">Role</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="role">Role</Label>
+                  <Tooltip content="Primary Contact: Main point of contact for all communications. Secondary Contact: Backup contact person. Billing Contact: Handles billing and payments. Technical Contact: Technical decision maker. End User: Regular user with limited access.">
+                    <QuestionMarkIcon />
+                  </Tooltip>
+                </div>
                 <Select value={formData.role} onValueChange={(value) => setFormData({...formData, role: value as ClientUser['role']})}>
                   <SelectTrigger>
                     <SelectValue />
@@ -278,7 +291,12 @@ const ClientUsersPage: React.FC = () => {
                   checked={formData.can_create_tickets}
                   onChange={(e) => setFormData({...formData, can_create_tickets: e.target.checked})}
                 />
-                <Label htmlFor="can_create_tickets">Can create tickets</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="can_create_tickets">Can create tickets</Label>
+                  <Tooltip content="Allow this user to create new support tickets for this client. This is typically enabled for primary contacts and technical contacts.">
+                    <QuestionMarkIcon />
+                  </Tooltip>
+                </div>
               </div>
               <div className="flex items-center space-x-2">
                 <input
@@ -287,10 +305,20 @@ const ClientUsersPage: React.FC = () => {
                   checked={formData.can_view_all_tickets}
                   onChange={(e) => setFormData({...formData, can_view_all_tickets: e.target.checked})}
                 />
-                <Label htmlFor="can_view_all_tickets">Can view all tickets</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="can_view_all_tickets">Can view all tickets</Label>
+                  <Tooltip content="Allow this user to view all tickets for this client, not just the ones they created. Useful for managers and primary contacts.">
+                    <QuestionMarkIcon />
+                  </Tooltip>
+                </div>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="notes">Notes</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="notes">Notes</Label>
+                  <Tooltip content="Additional information about this user's role, responsibilities, or special requirements for your team's reference.">
+                    <QuestionMarkIcon />
+                  </Tooltip>
+                </div>
                 <Textarea
                   id="notes"
                   value={formData.notes}

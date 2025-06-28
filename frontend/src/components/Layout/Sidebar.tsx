@@ -7,7 +7,7 @@ const Sidebar: React.FC = () => {
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: '📊' },
     { name: 'Tickets', href: '/tickets', icon: '🎫' },
-    { name: 'Clients', href: '/clients', icon: '👥' },
+    { name: 'Customers', href: '/clients', icon: '👥' },
     { name: 'Assets', href: '/assets', icon: '💻' },
     { name: 'Knowledge Base', href: '/knowledge-base', icon: '📚' },
     { name: 'Reports', href: '/reports', icon: '📈' },

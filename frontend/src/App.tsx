@@ -22,6 +22,7 @@ import BillingPage from './pages/Billing/BillingPage';
 import TicketsPage from './pages/Tickets/TicketsPage';
 import CreateTicketPage from './pages/Tickets/CreateTicketPage';
 import ClientsPage from './pages/Clients/ClientsPage';
+import ClientUsersPage from './pages/Clients/ClientUsersPage';
 import AssetsPage from './pages/Assets/AssetsPage';
 import KnowledgeBasePage from './pages/KnowledgeBase/KnowledgeBasePage';
 import ReportsPage from './pages/Reports/ReportsPage';
@@ -183,6 +184,14 @@ const App: React.FC = () => {
                   <ProtectedRoute>
                     <Layout>
                       <ClientsPage />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/clients/:clientId/users" element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <ClientUsersPage />
                     </Layout>
                   </ProtectedRoute>
                 } />

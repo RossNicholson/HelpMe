@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
 import { toast } from 'react-hot-toast';
+import { Tooltip, QuestionMarkIcon } from '../../components/ui/tooltip';
 
 interface SMSSettings {
   id?: number;
@@ -140,9 +141,14 @@ const SMSSettings: React.FC = () => {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Account SID
-              </label>
+              <div className="flex items-center gap-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Account SID
+                </label>
+                <Tooltip content="Your Twilio Account SID. You can find this in your Twilio Console under Account Info.">
+                  <QuestionMarkIcon />
+                </Tooltip>
+              </div>
               <input
                 type="text"
                 value={settings.account_sid || ''}
@@ -152,9 +158,14 @@ const SMSSettings: React.FC = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Auth Token
-              </label>
+              <div className="flex items-center gap-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Auth Token
+                </label>
+                <Tooltip content="Your Twilio Auth Token. This is used to authenticate API requests to Twilio.">
+                  <QuestionMarkIcon />
+                </Tooltip>
+              </div>
               <input
                 type="password"
                 value={settings.auth_token || ''}
@@ -165,9 +176,14 @@ const SMSSettings: React.FC = () => {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              From Number
-            </label>
+            <div className="flex items-center gap-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                From Number
+              </label>
+              <Tooltip content="The Twilio phone number that SMS messages will be sent from. Must be in E.164 format (e.g., +1234567890).">
+                <QuestionMarkIcon />
+              </Tooltip>
+            </div>
             <input
               type="text"
               value={settings.from_number || ''}
@@ -183,9 +199,14 @@ const SMSSettings: React.FC = () => {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Access Key ID
-              </label>
+              <div className="flex items-center gap-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Access Key ID
+                </label>
+                <Tooltip content="Your AWS Access Key ID. This is used to authenticate with AWS SNS service.">
+                  <QuestionMarkIcon />
+                </Tooltip>
+              </div>
               <input
                 type="text"
                 value={settings.access_key_id || ''}
@@ -195,9 +216,14 @@ const SMSSettings: React.FC = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Secret Access Key
-              </label>
+              <div className="flex items-center gap-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Secret Access Key
+                </label>
+                <Tooltip content="Your AWS Secret Access Key. This should be kept secure and not shared.">
+                  <QuestionMarkIcon />
+                </Tooltip>
+              </div>
               <input
                 type="password"
                 value={settings.secret_access_key || ''}
@@ -207,35 +233,27 @@ const SMSSettings: React.FC = () => {
               />
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
+          <div>
+            <div className="flex items-center gap-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Region
+                AWS Region
               </label>
-              <input
-                type="text"
-                value={settings.region || 'us-east-1'}
-                onChange={(e) => setSettings({ ...settings, region: e.target.value })}
-                placeholder="Enter AWS region"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              <Tooltip content="The AWS region where your SNS service is configured (e.g., us-east-1, eu-west-1).">
+                <QuestionMarkIcon />
+              </Tooltip>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                From Number
-              </label>
-              <input
-                type="text"
-                value={settings.from_number || ''}
-                onChange={(e) => setSettings({ ...settings, from_number: e.target.value })}
-                placeholder="Enter AWS SNS phone number"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+            <input
+              type="text"
+              value={settings.region || ''}
+              onChange={(e) => setSettings({ ...settings, region: e.target.value })}
+              placeholder="Enter AWS Region (e.g., us-east-1)"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
           </div>
         </>
       );
     }
+    return null;
   };
 
   if (loading) {

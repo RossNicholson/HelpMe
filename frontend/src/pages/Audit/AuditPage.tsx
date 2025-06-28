@@ -48,6 +48,7 @@ import {
 } from 'lucide-react';
 import { DatePicker } from '../../components/ui/date-picker';
 import { api } from '../../services/api';
+import { Tooltip, QuestionMarkIcon } from '../../components/ui/tooltip';
 
 interface AuditLog {
   id: number;
@@ -319,7 +320,12 @@ const AuditPage: React.FC = () => {
               </Select>
             </div>
             <div>
-              <Label htmlFor="entity_type">Entity Type</Label>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="entity_type">Entity Type</Label>
+                <Tooltip content="Filter by the type of entity that was affected by the action. Tickets, Clients, Users, etc.">
+                  <QuestionMarkIcon />
+                </Tooltip>
+              </div>
               <Select value={filters.entity_type} onValueChange={(value: string) => handleFilterChange('entity_type', value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="All entities" />
@@ -336,7 +342,12 @@ const AuditPage: React.FC = () => {
               </Select>
             </div>
             <div>
-              <Label htmlFor="severity">Severity</Label>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="severity">Severity</Label>
+                <Tooltip content="Filter by the severity level of the audit event. Critical: System security issues. High: Important changes. Medium: Standard operations. Low: Routine activities.">
+                  <QuestionMarkIcon />
+                </Tooltip>
+              </div>
               <Select value={filters.severity} onValueChange={(value: string) => handleFilterChange('severity', value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="All severities" />

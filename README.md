@@ -1,6 +1,6 @@
 ![HelpMe Logo](images/helpmelogo.png)
 
-# HelpMe - Open Source Helpdesk for IT Managed Service Providers
+# HelpMe - The Premier On-Premise Helpdesk for IT Managed Service Providers
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
@@ -8,9 +8,17 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5+-blue.svg)](https://www.typescriptlang.org/)
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Support%20Development-orange?style=flat&logo=buymeacoffee)](https://buymeacoffee.com/rossnicholson)
 
-## 🎯 Overview
+## 🎯 Why Choose HelpMe?
 
-HelpMe is a modern, open-source helpdesk ticket system specifically designed for IT Managed Service Providers (MSPs). Built with scalability, security, and ease of use in mind, it provides comprehensive ticket management, client communication, and reporting capabilities.
+**HelpMe is the best choice for Managed Service Providers (MSPs) who demand full control, privacy, and security.**
+
+- **On-Premise & Private Cloud**: Unlike SaaS solutions, HelpMe is designed to run on your own infrastructure—on-premises or in your private cloud. Your data never leaves your environment, giving you complete control and peace of mind.
+- **No Reliance on Third-Party SaaS**: Avoid the risks of vendor lock-in, data breaches, and compliance headaches. HelpMe puts you in charge of your helpdesk and your clients' sensitive information.
+- **Built for ITIL Best Practices**: Every workflow, process, and feature in HelpMe is designed to align with ITIL (Information Technology Infrastructure Library) best practices, ensuring your MSP operates at the highest standard of service management.
+
+## 🏆 Overview
+
+HelpMe is a modern, open-source helpdesk ticket system specifically designed for IT Managed Service Providers (MSPs). Built with scalability, security, and ease of use in mind, it provides comprehensive ticket management, client communication, and reporting capabilities—all while giving you full control over your data and compliance.
 
 ## ☕ Support the Project
 
@@ -33,9 +41,9 @@ Need help setting up HelpMe or want custom features? I offer professional servic
 ## ✨ Features
 
 ### Core Functionality
+- **ITIL-Aligned Ticket Management** - Create, track, and resolve support tickets with workflows that follow ITIL best practices
 - **Multi-tenant Architecture** - Support for multiple clients and organizations
-- **Ticket Management** - Create, track, and resolve support tickets
-- **Priority & SLA Management** - Configurable priority levels and service level agreements
+- **Priority & SLA Management** - Configurable priority levels and service level agreements, fully ITIL-compliant
 - **Asset Management** - Track client devices, software, and infrastructure
 - **Knowledge Base** - Centralized documentation and solutions database
 - **Time Tracking** - Built-in time tracking for billing and productivity
@@ -49,13 +57,17 @@ Need help setting up HelpMe or want custom features? I offer professional servic
 - **Contract Management** - Track service agreements and billing
 - **Escalation Rules** - Automated ticket escalation based on SLA
 
+### Security & Deployment
+- **On-Premise or Private Cloud** - Deploy HelpMe on your own servers or private cloud for maximum security and compliance
+- **No SaaS Dependency** - Your data, your rules—no third-party SaaS risk
+- **Role-based Access Control** - Granular permissions system
+- **Audit Logging** - Complete audit trail for compliance
+
 ### Technical Features
 - **Modern Tech Stack** - React, Node.js, TypeScript, PostgreSQL
 - **Real-time Updates** - WebSocket support for live notifications
 - **Mobile Responsive** - Works seamlessly on desktop and mobile
 - **API-First Design** - RESTful API for easy integrations
-- **Role-based Access Control** - Granular permissions system
-- **Audit Logging** - Complete audit trail for compliance
 
 ## 🚀 Quick Start
 
@@ -248,10 +260,10 @@ Show your appreciation with a coffee! Every contribution helps keep HelpMe free 
 ## 🙏 Acknowledgments
 
 - Built with ❤️ for the MSP community
-- Inspired by the need for better, more affordable helpdesk solutions
+- Inspired by the need for better, more secure, and ITIL-compliant helpdesk solutions
 - Thanks to all contributors and the open-source community
 - Special thanks to our sponsors and supporters!
 
 ---
 
-**HelpMe** - Making IT support management easier, one ticket at a time.
+**HelpMe** - The #1 on-premise, ITIL-aligned helpdesk for MSPs who value privacy, security, and control.
