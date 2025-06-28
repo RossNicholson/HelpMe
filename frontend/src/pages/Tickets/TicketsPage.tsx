@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -28,12 +28,15 @@ interface Client {
 }
 
 const TicketsPage: React.FC = () => {
+  const navigate = useNavigate();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  const [showViewModal, setShowViewModal] = useState(false);
   const [formData, setFormData] = useState({
     subject: '',
     description: '',
@@ -104,6 +107,15 @@ const TicketsPage: React.FC = () => {
     } finally {
       setCreating(false);
     }
+  };
+
+  const handleViewTicket = (ticket: Ticket) => {
+    setSelectedTicket(ticket);
+    setShowViewModal(true);
+  };
+
+  const handleEditTicket = (ticketId: string) => {
+    navigate(`/tickets/${ticketId}/edit`);
   };
 
   const getStatusColor = (status: string) => {
@@ -209,7 +221,22 @@ const TicketsPage: React.FC = () => {
                     <TableCell>{ticket.assignee_first_name} {ticket.assignee_last_name}</TableCell>
                     <TableCell>{new Date(ticket.created_at).toLocaleDateString()}</TableCell>
                     <TableCell>
-                      <Button variant="outline" size="sm">View</Button>
+                      <div className="flex space-x-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleViewTicket(ticket)}
+                        >
+                          View
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleEditTicket(ticket.id)}
+                        >
+                          Edit
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -285,6 +312,76 @@ const TicketsPage: React.FC = () => {
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Ticket Modal */}
+      <Dialog open={showViewModal} onOpenChange={setShowViewModal}>
+        <DialogContent className="sm:max-w-[700px]">
+          <DialogHeader>
+            <DialogTitle>Ticket Details</DialogTitle>
+          </DialogHeader>
+          {selectedTicket && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">Ticket ID</Label>
+                  <p className="text-sm text-gray-900">#{selectedTicket.id}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">Status</Label>
+                  <Badge className={getStatusColor(selectedTicket.status)}>
+                    {selectedTicket.status.replace('_', ' ')}
+                  </Badge>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">Priority</Label>
+                  <Badge className={getPriorityColor(selectedTicket.priority)}>
+                    {selectedTicket.priority}
+                  </Badge>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">Client</Label>
+                  <p className="text-sm text-gray-900">{selectedTicket.client_name}</p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">Assigned To</Label>
+                  <p className="text-sm text-gray-900">
+                    {selectedTicket.assignee_first_name && selectedTicket.assignee_last_name
+                      ? `${selectedTicket.assignee_first_name} ${selectedTicket.assignee_last_name}`
+                      : 'Unassigned'}
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-gray-700">Created</Label>
+                  <p className="text-sm text-gray-900">
+                    {new Date(selectedTicket.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-gray-700">Subject</Label>
+                <p className="text-sm text-gray-900 font-medium">{selectedTicket.subject}</p>
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-gray-700">Description</Label>
+                <div className="mt-1 p-3 bg-gray-50 rounded-md">
+                  <p className="text-sm text-gray-900 whitespace-pre-wrap">{selectedTicket.description}</p>
+                </div>
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={() => setShowViewModal(false)}>
+                  Close
+                </Button>
+                <Button onClick={() => {
+                  setShowViewModal(false);
+                  handleEditTicket(selectedTicket.id);
+                }}>
+                  Edit Ticket
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
