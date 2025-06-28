@@ -14,7 +14,7 @@ interface Client {
   name: string;
   email: string;
   phone?: string;
-  address?: string;
+  address?: string | { text: string };
   notes?: string;
   organization_id: string;
   created_at: string;
@@ -219,7 +219,13 @@ const ClientsPage: React.FC = () => {
                     <TableCell className="font-medium">{client.name}</TableCell>
                     <TableCell>{client.email}</TableCell>
                     <TableCell>{client.phone || '-'}</TableCell>
-                    <TableCell>{client.address || '-'}</TableCell>
+                    <TableCell>
+                      {client.address ? (
+                        typeof client.address === 'string' 
+                          ? client.address 
+                          : (client.address as { text: string }).text || JSON.stringify(client.address)
+                      ) : '-'}
+                    </TableCell>
                     <TableCell>{new Date(client.created_at).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <Button variant="outline" size="sm">View</Button>
