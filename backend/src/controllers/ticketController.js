@@ -10,7 +10,7 @@ class TicketController {
    */
   async getTickets(req, res) {
     try {
-      const { organizationId } = req.params;
+      const organizationId = req.user.organization_id;
       const { 
         status, 
         priority, 
@@ -493,6 +493,135 @@ class TicketController {
     } catch (error) {
       logger.error('Error sending SMS notifications:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Delete a ticket
+   */
+  async deleteTicket(req, res) {
+    try {
+      const { id } = req.params;
+
+      const deleted = await knex('tickets')
+        .where({ id, organization_id: req.user.organization_id })
+        .del();
+
+      if (!deleted) {
+        return res.status(404).json({
+          success: false,
+          message: 'Ticket not found'
+        });
+      }
+
+      res.json({
+        success: true,
+        message: 'Ticket deleted successfully'
+      });
+    } catch (error) {
+      logger.error('Error deleting ticket:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to delete ticket',
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Update ticket status
+   */
+  async updateStatus(req, res) {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+
+      if (!status) {
+        return res.status(400).json({
+          success: false,
+          message: 'Status is required'
+        });
+      }
+
+      const updateData = { status, updated_at: new Date() };
+
+      // Set resolved_at if status is resolved
+      if (status === 'resolved') {
+        updateData.resolved_at = new Date();
+      }
+
+      // Set closed_at if status is closed
+      if (status === 'closed') {
+        updateData.closed_at = new Date();
+      }
+
+      const [ticket] = await knex('tickets')
+        .where({ id, organization_id: req.user.organization_id })
+        .update(updateData)
+        .returning('*');
+
+      if (!ticket) {
+        return res.status(404).json({
+          success: false,
+          message: 'Ticket not found'
+        });
+      }
+
+      res.json({
+        success: true,
+        data: ticket
+      });
+    } catch (error) {
+      logger.error('Error updating ticket status:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to update ticket status',
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Assign ticket to a user
+   */
+  async assignTicket(req, res) {
+    try {
+      const { id } = req.params;
+      const { assigned_to } = req.body;
+
+      if (!assigned_to) {
+        return res.status(400).json({
+          success: false,
+          message: 'Assigned user is required'
+        });
+      }
+
+      const [ticket] = await knex('tickets')
+        .where({ id, organization_id: req.user.organization_id })
+        .update({ 
+          assigned_to, 
+          updated_at: new Date() 
+        })
+        .returning('*');
+
+      if (!ticket) {
+        return res.status(404).json({
+          success: false,
+          message: 'Ticket not found'
+        });
+      }
+
+      res.json({
+        success: true,
+        data: ticket
+      });
+    } catch (error) {
+      logger.error('Error assigning ticket:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to assign ticket',
+        error: error.message
+      });
     }
   }
 }

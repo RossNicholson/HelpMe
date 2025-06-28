@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
-import { ticketsAPI } from '../../services/api';
+import { ticketsAPI, clientsAPI } from '../../services/api';
 
 interface Ticket {
   id: string;
@@ -50,6 +50,7 @@ const TicketsPage: React.FC = () => {
       setTickets(response.data || []);
     } catch (error) {
       console.error('Error fetching tickets:', error);
+      setTickets([]);
     } finally {
       setLoading(false);
     }
@@ -57,11 +58,11 @@ const TicketsPage: React.FC = () => {
 
   const fetchClients = async () => {
     try {
-      const response = await fetch('/api/clients');
-      const data = await response.json();
-      setClients(data || []);
+      const response = await clientsAPI.getAll();
+      setClients(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error('Error fetching clients:', error);
+      setClients([]);
     }
   };
 
@@ -255,7 +256,7 @@ const TicketsPage: React.FC = () => {
                 className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Select a client</option>
-                {clients.map((client) => (
+                {Array.isArray(clients) && clients.map((client) => (
                   <option key={client.id} value={client.id}>
                     {client.name} ({client.email})
                   </option>

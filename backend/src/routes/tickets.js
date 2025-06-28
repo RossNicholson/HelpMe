@@ -7,15 +7,20 @@ const { protect } = require('../middleware/auth');
 router.use(protect);
 
 // Ticket CRUD operations
-router.get('/organizations/:organizationId/tickets', ticketController.getTickets);
-router.get('/tickets/:id', ticketController.getTicket);
-router.post('/tickets', ticketController.createTicket);
-router.put('/tickets/:id', ticketController.updateTicket);
+router.get('/', ticketController.getTickets);
+router.get('/:id', ticketController.getTicket);
+router.post('/', ticketController.createTicket);
+router.put('/:id', ticketController.updateTicket);
+router.delete('/:id', ticketController.deleteTicket);
 
 // Ticket comments
-router.post('/tickets/:ticketId/comments', ticketController.addComment);
+router.post('/:ticketId/comments', ticketController.addComment);
+
+// Ticket status and assignment
+router.patch('/:id/status', ticketController.updateStatus);
+router.patch('/:id/assign', ticketController.assignTicket);
 
 // Ticket statistics
-router.get('/organizations/:organizationId/ticket-stats', ticketController.getTicketStats);
+router.get('/stats/organizations/:organizationId', ticketController.getTicketStats);
 
 module.exports = router; 
