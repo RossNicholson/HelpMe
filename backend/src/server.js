@@ -19,6 +19,9 @@ const assetRoutes = require('./routes/assets');
 const knowledgeBaseRoutes = require('./routes/knowledgeBase');
 const reportRoutes = require('./routes/reports');
 const notificationRoutes = require('./routes/notifications');
+const slaRoutes = require('./routes/sla');
+const escalationRoutes = require('./routes/escalation');
+const timeTrackingRoutes = require('./routes/timeTracking');
 
 const app = express();
 const server = createServer(app);
@@ -69,6 +72,9 @@ app.use('/api/assets', assetRoutes);
 app.use('/api/knowledge-base', knowledgeBaseRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/sla', slaRoutes);
+app.use('/api/escalation', escalationRoutes);
+app.use('/api/time-tracking', timeTrackingRoutes);
 
 // Swagger API Documentation
 if (process.env.NODE_ENV === 'development') {

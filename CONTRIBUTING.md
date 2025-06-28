@@ -152,7 +152,7 @@ We use [Semantic Versioning](https://semver.org/):
 
 - **Issues**: Use GitHub Issues for bug reports and feature requests
 - **Discussions**: Use GitHub Discussions for questions and general discussion
-- **Email**: support@helpme.com for urgent matters
+- **Email**: helpme@rossnicholson.dev for urgent matters
 
 ## 🙏 Recognition
 

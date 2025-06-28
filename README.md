@@ -211,7 +211,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Documentation**: [docs.helpme.com](https://docs.helpme.com)
 - **Issues**: [GitHub Issues](https://github.com/RossNicholson/HelpMe/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/RossNicholson/HelpMe/discussions)
-- **Email**: support@helpme.com
+- **Email**: helpme@rossnicholson.dev
+- **Website**: [rossnicholson.dev](https://rossnicholson.dev)
 
 ## 🙏 Acknowledgments
 

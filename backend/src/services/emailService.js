@@ -60,6 +60,103 @@ const emailTemplates = {
         </p>
       </div>
     `
+  },
+  'escalation-notification': {
+    subject: 'Ticket Escalation Alert',
+    html: (data) => `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #d32f2f;">🚨 Ticket Escalation Alert</h2>
+        <p>A support ticket has been escalated and requires your attention.</p>
+        <div style="background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; border-radius: 4px; margin: 20px 0;">
+          <p><strong>Ticket Number:</strong> ${data.ticketNumber}</p>
+          <p><strong>Subject:</strong> ${data.subject}</p>
+          <p><strong>Priority:</strong> <span style="color: #d32f2f; font-weight: bold;">${data.priority}</span></p>
+          <p><strong>Escalation Rule:</strong> ${data.escalationRule}</p>
+        </div>
+        <p style="margin: 20px 0;">
+          <a href="${data.ticketUrl}" style="background-color: #d32f2f; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px;">
+            View Ticket
+          </a>
+        </p>
+        <p>Please review this ticket immediately and take appropriate action.</p>
+        <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+        <p style="color: #666; font-size: 12px;">
+          This is an automated escalation notification from HelpMe Support System.
+        </p>
+      </div>
+    `
+  },
+  'invoice-sent': {
+    subject: 'Invoice ${data.invoiceNumber} - ${data.clientName}',
+    html: (data) => `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #333;">Invoice ${data.invoiceNumber}</h2>
+        <p>Dear ${data.clientName},</p>
+        <p>Please find attached your invoice for the services provided.</p>
+        <div style="background-color: #f8f9fa; padding: 15px; border-radius: 4px; margin: 20px 0;">
+          <p><strong>Invoice Number:</strong> ${data.invoiceNumber}</p>
+          <p><strong>Invoice Date:</strong> ${data.invoiceDate}</p>
+          <p><strong>Due Date:</strong> ${data.dueDate}</p>
+          <p><strong>Amount Due:</strong> $${data.totalAmount}</p>
+        </div>
+        <p style="margin: 20px 0;">
+          <a href="${data.invoiceUrl}" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px;">
+            View Invoice
+          </a>
+        </p>
+        <p>If you have any questions about this invoice, please don't hesitate to contact us.</p>
+        <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+        <p style="color: #666; font-size: 12px;">
+          This is an automated message from HelpMe Support System.
+        </p>
+      </div>
+    `
+  },
+  'invoice-paid': {
+    subject: 'Payment Received - Invoice ${data.invoiceNumber}',
+    html: (data) => `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #28a745;">✅ Payment Received</h2>
+        <p>Dear ${data.clientName},</p>
+        <p>Thank you for your payment. We have received your payment for the following invoice:</p>
+        <div style="background-color: #d4edda; border-left: 4px solid #28a745; padding: 15px; border-radius: 4px; margin: 20px 0;">
+          <p><strong>Invoice Number:</strong> ${data.invoiceNumber}</p>
+          <p><strong>Amount Paid:</strong> $${data.amount}</p>
+          <p><strong>Payment Date:</strong> ${data.paidDate}</p>
+        </div>
+        <p>Your payment has been processed successfully. Thank you for your business!</p>
+        <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+        <p style="color: #666; font-size: 12px;">
+          This is an automated message from HelpMe Support System.
+        </p>
+      </div>
+    `
+  },
+  'invoice-overdue': {
+    subject: 'Invoice Overdue - ${data.invoiceNumber}',
+    html: (data) => `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #dc3545;">⚠️ Invoice Overdue</h2>
+        <p>Dear ${data.clientName},</p>
+        <p>This is a reminder that the following invoice is overdue:</p>
+        <div style="background-color: #f8d7da; border-left: 4px solid #dc3545; padding: 15px; border-radius: 4px; margin: 20px 0;">
+          <p><strong>Invoice Number:</strong> ${data.invoiceNumber}</p>
+          <p><strong>Due Date:</strong> ${data.dueDate}</p>
+          <p><strong>Amount Due:</strong> $${data.balanceDue}</p>
+          <p><strong>Days Overdue:</strong> ${data.daysOverdue}</p>
+        </div>
+        <p style="margin: 20px 0;">
+          <a href="${data.invoiceUrl}" style="background-color: #dc3545; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px;">
+            Pay Now
+          </a>
+        </p>
+        <p>Please process this payment as soon as possible to avoid any service interruptions.</p>
+        <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+        <p style="color: #666; font-size: 12px;">
+          This is an automated message from HelpMe Support System.
+        </p>
+      </div>
+    `
   }
 };
 
@@ -96,7 +193,17 @@ const sendEmail = async ({ to, subject, template, data, html, text }) => {
   }
 };
 
+// Send escalation notification
+const sendEscalationNotification = async (data) => {
+  return sendEmail({
+    to: data.to,
+    template: 'escalation-notification',
+    data: data
+  });
+};
+
 module.exports = {
   sendEmail,
+  sendEscalationNotification,
   emailTemplates
 }; 
