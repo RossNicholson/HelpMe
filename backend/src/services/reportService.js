@@ -1,4 +1,4 @@
-const knex = require('../utils/database');
+const { db } = require('../utils/database');
 const logger = require('../utils/logger');
 
 class ReportService {
@@ -8,7 +8,7 @@ class ReportService {
   async getTicketAnalytics(organizationId, filters = {}) {
     try {
       const { start_date, end_date, client_id } = filters;
-      let query = knex('tickets').where('organization_id', organizationId);
+      let query = db('tickets').where('organization_id', organizationId);
       if (start_date && end_date) {
         query = query.whereBetween('created_at', [start_date, end_date]);
       }
@@ -24,7 +24,7 @@ class ReportService {
       // Total tickets
       const total = await query.clone().count('* as count').first();
       // Overdue tickets
-      const overdue = await query.clone().where('due_date', '<', knex.fn.now()).whereNot('status', 'closed').count('* as count').first();
+      const overdue = await query.clone().where('due_date', '<', db.fn.now()).whereNot('status', 'closed').count('* as count').first();
       // Resolved tickets
       const resolved = await query.clone().where('status', 'resolved').count('* as count').first();
       // Closed tickets
@@ -50,7 +50,7 @@ class ReportService {
   async getSLACompliance(organizationId, filters = {}) {
     try {
       const { start_date, end_date, client_id } = filters;
-      let query = knex('sla_violations').where('organization_id', organizationId);
+      let query = db('sla_violations').where('organization_id', organizationId);
       if (start_date && end_date) {
         query = query.whereBetween('created_at', [start_date, end_date]);
       }
@@ -75,7 +75,7 @@ class ReportService {
   async getTimeTrackingStats(organizationId, filters = {}) {
     try {
       const { start_date, end_date, user_id, client_id } = filters;
-      let query = knex('time_entries')
+      let query = db('time_entries')
         .join('tickets', 'time_entries.ticket_id', 'tickets.id')
         .where('time_entries.organization_id', organizationId)
         .where('time_entries.is_active', true);
@@ -110,7 +110,7 @@ class ReportService {
   async getBillingStats(organizationId, filters = {}) {
     try {
       const { start_date, end_date, client_id } = filters;
-      let query = knex('invoices').where('organization_id', organizationId);
+      let query = db('invoices').where('organization_id', organizationId);
       if (start_date && end_date) {
         query = query.whereBetween('invoice_date', [start_date, end_date]);
       }
@@ -139,9 +139,9 @@ class ReportService {
   async getClientPerformance(organizationId, filters = {}) {
     try {
       const { start_date, end_date } = filters;
-      let query = knex('clients').where('organization_id', organizationId);
+      let query = db('clients').where('organization_id', organizationId);
       // Tickets per client
-      const ticketCounts = await knex('tickets')
+      const ticketCounts = await db('tickets')
         .where('organization_id', organizationId)
         .modify((qb) => {
           if (start_date && end_date) {
@@ -152,7 +152,7 @@ class ReportService {
         .count('* as count')
         .groupBy('client_id');
       // SLA breaches per client
-      const slaBreaches = await knex('sla_violations')
+      const slaBreaches = await db('sla_violations')
         .where('organization_id', organizationId)
         .modify((qb) => {
           if (start_date && end_date) {

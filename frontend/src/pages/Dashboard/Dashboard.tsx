@@ -1,6 +1,21 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleCreateTicket = () => {
+    navigate('/tickets');
+  };
+
+  const handleAddClient = () => {
+    navigate('/clients');
+  };
+
+  const handleViewKnowledgeBase = () => {
+    navigate('/knowledge-base');
+  };
+
   return (
     <div>
       <div className="mb-8">
@@ -60,21 +75,28 @@ const Dashboard: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Recent Tickets</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Recent Activity</h3>
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
+            <div className="flex items-center">
+              <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
               <div>
-                <p className="font-medium text-gray-900">Network connectivity issue</p>
-                <p className="text-sm text-gray-600">Client: ABC Corp</p>
+                <p className="text-sm font-medium text-gray-900">New ticket created</p>
+                <p className="text-xs text-gray-500">2 minutes ago</p>
               </div>
-              <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded">High</span>
             </div>
-            <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
+            <div className="flex items-center">
+              <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
               <div>
-                <p className="font-medium text-gray-900">Software installation request</p>
-                <p className="text-sm text-gray-600">Client: XYZ Inc</p>
+                <p className="text-sm font-medium text-gray-900">Ticket resolved</p>
+                <p className="text-xs text-gray-500">15 minutes ago</p>
               </div>
-              <span className="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded">Medium</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-2 h-2 bg-yellow-500 rounded-full mr-3"></div>
+              <div>
+                <p className="text-sm font-medium text-gray-900">Client comment added</p>
+                <p className="text-xs text-gray-500">1 hour ago</p>
+              </div>
             </div>
           </div>
         </div>
@@ -82,15 +104,24 @@ const Dashboard: React.FC = () => {
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
           <div className="space-y-3">
-            <button className="w-full text-left p-3 bg-blue-50 hover:bg-blue-100 rounded transition-colors">
+            <button 
+              onClick={handleCreateTicket}
+              className="w-full text-left p-3 bg-blue-50 hover:bg-blue-100 rounded transition-colors"
+            >
               <span className="text-lg mr-3">➕</span>
               Create New Ticket
             </button>
-            <button className="w-full text-left p-3 bg-green-50 hover:bg-green-100 rounded transition-colors">
+            <button 
+              onClick={handleAddClient}
+              className="w-full text-left p-3 bg-green-50 hover:bg-green-100 rounded transition-colors"
+            >
               <span className="text-lg mr-3">👥</span>
               Add New Client
             </button>
-            <button className="w-full text-left p-3 bg-purple-50 hover:bg-purple-100 rounded transition-colors">
+            <button 
+              onClick={handleViewKnowledgeBase}
+              className="w-full text-left p-3 bg-purple-50 hover:bg-purple-100 rounded transition-colors"
+            >
               <span className="text-lg mr-3">📚</span>
               View Knowledge Base
             </button>
