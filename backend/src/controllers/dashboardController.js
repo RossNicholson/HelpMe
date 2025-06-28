@@ -19,7 +19,7 @@ const getDashboardStats = async (req, res) => {
         knex.raw('COUNT(CASE WHEN status = \'resolved\' THEN 1 END) as resolved_tickets'),
         knex.raw('COUNT(CASE WHEN status = \'closed\' THEN 1 END) as closed_tickets'),
         knex.raw('COUNT(CASE WHEN priority = \'high\' THEN 1 END) as high_priority'),
-        knex.raw('COUNT(CASE WHEN priority = \'urgent\' THEN 1 END) as urgent_tickets'),
+        knex.raw('COUNT(CASE WHEN priority = \'critical\' THEN 1 END) as critical_tickets'),
         knex.raw('COUNT(CASE WHEN due_date < NOW() AND status != \'resolved\' AND status != \'closed\' THEN 1 END) as overdue_tickets'),
         knex.raw('COUNT(CASE WHEN DATE(created_at) = DATE(NOW()) THEN 1 END) as tickets_today'),
         knex.raw('COUNT(CASE WHEN DATE(resolved_at) = DATE(NOW()) THEN 1 END) as resolved_today')
@@ -101,7 +101,7 @@ const getDashboardStats = async (req, res) => {
           resolved: parseInt(ticketStats.resolved_tickets) || 0,
           closed: parseInt(ticketStats.closed_tickets) || 0,
           highPriority: parseInt(ticketStats.high_priority) || 0,
-          urgent: parseInt(ticketStats.urgent_tickets) || 0,
+          critical: parseInt(ticketStats.critical_tickets) || 0,
           overdue: parseInt(ticketStats.overdue_tickets) || 0,
           createdToday: parseInt(ticketStats.tickets_today) || 0,
           resolvedToday: parseInt(ticketStats.resolved_today) || 0
