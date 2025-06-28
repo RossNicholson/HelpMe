@@ -20,10 +20,10 @@ const getDashboardStats = async (req, res) => {
         db.raw('COUNT(CASE WHEN status = \'in_progress\' THEN 1 END) as in_progress_tickets'),
         db.raw('COUNT(CASE WHEN status = \'closed\' THEN 1 END) as closed_tickets'),
         db.raw('COUNT(CASE WHEN priority = \'high\' THEN 1 END) as high_priority'),
-        db.raw('COUNT(CASE WHEN priority = \'critical\' THEN 1 END) as critical_tickets'),
+        db.raw('COUNT(CASE WHEN priority = \'urgent\' THEN 1 END) as urgent_tickets'),
         db.raw('COUNT(CASE WHEN due_date < NOW() AND status != \'closed\' THEN 1 END) as overdue_tickets'),
         db.raw('COUNT(CASE WHEN DATE(created_at) = DATE(NOW()) THEN 1 END) as tickets_today'),
-        db.raw('COUNT(CASE WHEN DATE(closed_at) = DATE(NOW()) THEN 1 END) as closed_today')
+        db.raw('COUNT(CASE WHEN DATE(updated_at) = DATE(NOW()) AND status = \'closed\' THEN 1 END) as resolved_today')
       )
       .first();
 
@@ -47,7 +47,7 @@ const getDashboardStats = async (req, res) => {
       )
       .first();
 
-    // Get recent activity (last 10 ticket updates)
+    // Get recent tickets
     const recentActivity = await db('tickets')
       .join('clients', 'tickets.client_id', 'clients.id')
       .join('users as creator', 'tickets.created_by', 'creator.id')
@@ -82,8 +82,8 @@ const getDashboardStats = async (req, res) => {
       .groupBy(db.raw('DATE(created_at)'))
       .orderBy('date', 'asc');
 
-    // Get priority distribution
-    const priorityDistribution = await db('tickets')
+    // Get ticket status distribution
+    const statusDistribution = await db('tickets')
       .where('organization_id', organizationId)
       .where('status', '!=', 'closed')
       .select(
@@ -97,29 +97,28 @@ const getDashboardStats = async (req, res) => {
       success: true,
       data: {
         tickets: {
-          total: parseInt(ticketStats.total_tickets) || 0,
-          unassigned: parseInt(ticketStats.unassigned_tickets) || 0,
-          assigned: parseInt(ticketStats.assigned_tickets) || 0,
-          inProgress: parseInt(ticketStats.in_progress_tickets) || 0,
-          closed: parseInt(ticketStats.closed_tickets) || 0,
-          highPriority: parseInt(ticketStats.high_priority) || 0,
-          critical: parseInt(ticketStats.critical_tickets) || 0,
-          overdue: parseInt(ticketStats.overdue_tickets) || 0,
-          createdToday: parseInt(ticketStats.tickets_today) || 0,
-          closedToday: parseInt(ticketStats.closed_today) || 0
+          total: parseInt(ticketStats?.total_tickets || 0),
+          open: parseInt(ticketStats?.unassigned_tickets || 0) + parseInt(ticketStats?.assigned_tickets || 0) + parseInt(ticketStats?.in_progress_tickets || 0),
+          resolved: parseInt(ticketStats?.closed_tickets || 0),
+          closed: parseInt(ticketStats?.closed_tickets || 0),
+          highPriority: parseInt(ticketStats?.high_priority || 0),
+          urgent: parseInt(ticketStats?.urgent_tickets || 0),
+          overdue: parseInt(ticketStats?.overdue_tickets || 0),
+          createdToday: parseInt(ticketStats?.tickets_today || 0),
+          resolvedToday: parseInt(ticketStats?.resolved_today || 0)
         },
         clients: {
-          total: parseInt(clientStats.total_clients) || 0,
-          active: parseInt(clientStats.active_clients) || 0
+          total: parseInt(clientStats?.total_clients || 0),
+          active: parseInt(clientStats?.active_clients || 0)
         },
         users: {
-          total: parseInt(userStats.total_users) || 0,
-          admins: parseInt(userStats.admin_users) || 0,
-          technicians: parseInt(userStats.technician_users) || 0
+          total: parseInt(userStats?.total_users || 0),
+          admins: parseInt(userStats?.admin_users || 0),
+          technicians: parseInt(userStats?.technician_users || 0)
         },
-        recentActivity,
-        trends: ticketTrends,
-        priorityDistribution
+        recentActivity: recentActivity || [],
+        trends: ticketTrends || [],
+        priorityDistribution: statusDistribution || []
       }
     });
   } catch (error) {

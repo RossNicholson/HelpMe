@@ -5,18 +5,44 @@ const db = require('../utils/database');
 const logger = require('../utils/logger');
 const { sendEmail } = require('../services/emailService');
 
+// Validate JWT secrets are configured
+if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+  logger.error('JWT_SECRET environment variable is not properly configured. Must be at least 32 characters long.');
+  process.exit(1);
+}
+
+if (!process.env.REFRESH_TOKEN_SECRET || process.env.REFRESH_TOKEN_SECRET.length < 32) {
+  logger.error('REFRESH_TOKEN_SECRET environment variable is not properly configured. Must be at least 32 characters long.');
+  process.exit(1);
+}
+
 // Generate JWT Token
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN || '24h',
+    expiresIn: process.env.JWT_EXPIRES_IN || '1h',
   });
 };
 
 // Generate Refresh Token
-const generateRefreshToken = (id) => {
-  return jwt.sign({ id }, process.env.REFRESH_TOKEN_SECRET, {
-    expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || '7d',
-  });
+const generateRefreshToken = (userId) => {
+  return jwt.sign(
+    { id: userId },
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: '7d' }
+  );
+};
+
+const generateAccessToken = (user) => {
+  return jwt.sign(
+    { 
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      organization_id: user.organization_id
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: '1h' }
+  );
 };
 
 // @desc    Register user
@@ -129,10 +155,23 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Check if user exists
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email and password are required'
+      });
+    }
+
+    // Find user with organization
     const user = await db('users')
-      .where('email', email)
-      .where('is_active', true)
+      .join('user_organizations', 'users.id', 'user_organizations.user_id')
+      .where('users.email', email)
+      .where('users.is_active', true)
+      .where('user_organizations.is_active', true)
+      .select(
+        'users.*',
+        'user_organizations.organization_id'
+      )
       .first();
 
     if (!user) {
@@ -142,23 +181,23 @@ const login = async (req, res) => {
       });
     }
 
-    // Check password
-    const isMatch = await bcrypt.compare(password, user.password_hash);
-    if (!isMatch) {
+    // Verify password
+    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+    if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
         error: 'Invalid credentials'
       });
     }
 
+    // Generate tokens
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user.id);
+
     // Update last login
     await db('users')
       .where('id', user.id)
       .update({ last_login_at: new Date() });
-
-    // Generate tokens
-    const token = generateToken(user.id);
-    const refreshToken = generateRefreshToken(user.id);
 
     res.json({
       success: true,
@@ -169,9 +208,9 @@ const login = async (req, res) => {
           first_name: user.first_name,
           last_name: user.last_name,
           role: user.role,
-          avatar_url: user.avatar_url
+          organization_id: user.organization_id
         },
-        token,
+        accessToken,
         refreshToken
       }
     });
@@ -179,7 +218,7 @@ const login = async (req, res) => {
     logger.error('Login error:', error);
     res.status(500).json({
       success: false,
-      error: 'Server error during login'
+      error: 'Failed to login'
     });
   }
 };

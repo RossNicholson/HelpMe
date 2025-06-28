@@ -70,10 +70,8 @@ const Dashboard: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (stats?.recentActivity) {
-      applyActivityFilters();
-    }
-  }, [stats?.recentActivity, activityFilters]);
+    applyActivityFilters();
+  }, [stats, activityFilters]);
 
   const fetchDashboardStats = async () => {
     try {
@@ -101,7 +99,10 @@ const Dashboard: React.FC = () => {
   };
 
   const applyActivityFilters = () => {
-    if (!stats?.recentActivity) return;
+    if (!stats?.recentActivity) {
+      setFilteredActivity([]);
+      return;
+    }
 
     let filtered = [...stats.recentActivity];
 
@@ -407,7 +408,7 @@ const Dashboard: React.FC = () => {
 
               {/* Results Summary */}
               <div className="mb-4 text-sm text-gray-600">
-                Showing {filteredActivity.length} of {stats.recentActivity.length} activities
+                Showing {filteredActivity.length} of {stats?.recentActivity?.length || 0} activities
                 {(activityFilters.search || activityFilters.status || activityFilters.priority || activityFilters.client_name) && (
                   <span className="ml-2 text-blue-600">
                     (filtered)
@@ -418,7 +419,7 @@ const Dashboard: React.FC = () => {
               <div className="space-y-4 max-h-96 overflow-y-auto">
                 {filteredActivity.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
-                    {stats.recentActivity.length === 0 
+                    {!stats?.recentActivity || stats.recentActivity.length === 0 
                       ? 'No recent activity found.'
                       : 'No activities match your current filters. Try adjusting your search criteria.'
                     }

@@ -32,6 +32,9 @@ const dashboardRoutes = require('./routes/dashboard');
 const app = express();
 const server = createServer(app);
 
+// Trust proxy for rate limiting and security
+app.set('trust proxy', 1);
+
 // Validate required environment variables
 const requiredEnvVars = ['JWT_SECRET', 'DB_PASSWORD'];
 for (const envVar of requiredEnvVars) {
@@ -55,12 +58,12 @@ const io = new Server(server, {
   }
 });
 
-// Rate limiting - more restrictive for auth endpoints
+// Rate limiting configuration
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // limit each IP to 5 requests per windowMs for auth
+  windowMs: parseInt(process.env.AUTH_RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
+  max: parseInt(process.env.AUTH_RATE_LIMIT_MAX_REQUESTS) || 5, // limit each IP to 5 requests per windowMs
   message: {
-    error: 'Too many authentication attempts, please try again later.'
+    error: 'Too many authentication attempts from this IP, please try again later.'
   },
   standardHeaders: true,
   legacyHeaders: false,

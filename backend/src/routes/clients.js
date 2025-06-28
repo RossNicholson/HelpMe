@@ -141,78 +141,50 @@ router.post('/', protect, async (req, res) => {
       });
     }
     
-    // Use a transaction to create both client and primary contact
-    const result = await db.transaction(async (trx) => {
-      // Prepare client data
-      const clientData = {
-        name,
-        company_name,
-        website,
-        timezone: timezone || 'UTC',
-        notes,
-        organization_id: req.user.organization_id
-      };
-      
-      // Handle address field - convert string to JSON if provided
-      if (address && typeof address === 'string') {
-        try {
-          clientData.address = JSON.parse(address);
-        } catch (e) {
-          // If it's not valid JSON, store as a simple object
-          clientData.address = { text: address };
-        }
-      } else if (address) {
-        clientData.address = address;
+    // Prepare client data with primary contact information
+    const clientData = {
+      name,
+      company_name,
+      website,
+      timezone: timezone || 'UTC',
+      notes,
+      organization_id: req.user.organization_id,
+      // Store primary contact information directly in the client record
+      primary_contact_first_name: contact_first_name,
+      primary_contact_last_name: contact_last_name,
+      primary_contact_email: contact_email,
+      primary_contact_phone: contact_phone
+    };
+    
+    // Handle address field - convert string to JSON if provided
+    if (address && typeof address === 'string') {
+      try {
+        clientData.address = JSON.parse(address);
+      } catch (e) {
+        // If it's not valid JSON, store as a simple object
+        clientData.address = { text: address };
       }
-      
-      // Create the client first
-      const [client] = await trx('clients').insert(clientData).returning('*');
-      
-      // Create the primary contact user
-      const [primaryContact] = await trx('users').insert({
-        first_name: contact_first_name,
-        last_name: contact_last_name,
-        email: contact_email,
-        phone: contact_phone,
-        role: 'client',
-        is_active: true
-      }).returning('*');
-      
-      // Link the primary contact to the client
-      await trx('client_users').insert({
-        user_id: primaryContact.id,
-        client_id: client.id,
-        organization_id: req.user.organization_id,
-        role: 'primary_contact',
-        is_active: true,
-        can_create_tickets: true,
-        can_view_all_tickets: true
-      });
-      
-      // Update the client with the primary contact ID
-      const [updatedClient] = await trx('clients')
-        .where('id', client.id)
-        .update({ primary_contact_id: primaryContact.id })
-        .returning('*');
-      
-      // Return the client with primary contact information
-      const clientWithContact = {
-        ...updatedClient,
-        primary_contact: {
-          id: primaryContact.id,
-          first_name: primaryContact.first_name,
-          last_name: primaryContact.last_name,
-          email: primaryContact.email,
-          phone: primaryContact.phone
-        }
-      };
-      
-      return clientWithContact;
-    });
+    } else if (address) {
+      clientData.address = address;
+    }
+    
+    // Create the client
+    const [client] = await db('clients').insert(clientData).returning('*');
+    
+    // Return the client with primary contact information
+    const clientWithContact = {
+      ...client,
+      primary_contact: {
+        first_name: client.primary_contact_first_name,
+        last_name: client.primary_contact_last_name,
+        email: client.primary_contact_email,
+        phone: client.primary_contact_phone
+      }
+    };
     
     res.status(201).json({
       success: true,
-      data: result
+      data: clientWithContact
     });
   } catch (error) {
     console.error('Error creating client:', error);
