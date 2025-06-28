@@ -1,3 +1,5 @@
+![HelpMe Logo](images/helpmelogo.png)
+
 # HelpMe - Open Source Helpdesk for IT Managed Service Providers
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
