@@ -69,6 +69,44 @@ Need help setting up HelpMe or want custom features? I offer professional servic
 - **Mobile Responsive** - Works seamlessly on desktop and mobile
 - **API-First Design** - RESTful API for easy integrations
 
+### 🆕 Latest Features (v2.0)
+
+#### Enhanced Search & Filtering
+- **Global Search** - Search across tickets, clients, users, and assets with real-time results
+- **Advanced Filters** - Filter by status, priority, client, date ranges, and custom criteria
+- **Smart Results** - Intelligent search with highlighting and result summaries
+- **Saved Searches** - Save and reuse common search queries
+
+#### ITIL-Compliant Customer Management
+- **Primary Contacts** - Designate primary contact users for each customer with full contact details
+- **Customer Users** - Manage multiple users within each customer organization
+- **Role-based Permissions** - Granular permissions for customer users (primary contact, secondary contact, billing contact, technical contact, end user)
+- **ITIL Terminology** - Proper ITIL terminology throughout the interface (Customers, Users, etc.)
+
+#### Improved Ticket Workflow
+- **New Status System** - Streamlined ticket statuses: Unassigned → Assigned → In Progress → Closed
+- **Automatic Status Updates** - Status automatically updates based on ticket assignment
+- **Enhanced Ticket Views** - Modal view for quick ticket inspection and full edit pages
+- **Better Assignment Logic** - Clear workflow from unassigned to assigned tickets
+
+#### Comprehensive Audit & Security
+- **Audit Logging** - Complete audit trail of all system activities
+- **Security Events** - Track login attempts, permission changes, and data modifications
+- **Compliance Reporting** - Built-in compliance reports for regulatory requirements
+- **User Activity Monitoring** - Monitor user actions and system usage
+
+#### Advanced Analytics & Reporting
+- **SLA Compliance Tracking** - Monitor SLA violations and response times
+- **Performance Metrics** - Track ticket resolution times, customer satisfaction, and team productivity
+- **Custom Dashboards** - Create personalized dashboards with key metrics
+- **Export Capabilities** - Export reports in multiple formats
+
+#### Enhanced Client Portal
+- **Self-Service Features** - Clients can create tickets, view knowledge base, and track progress
+- **User Management** - Clients can manage their own users and permissions
+- **Real-time Updates** - Live notifications and status updates
+- **Mobile-Friendly** - Responsive design for mobile access
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -116,7 +154,7 @@ Need help setting up HelpMe or want custom features? I offer professional servic
    npm run dev
    
    # Start frontend (from frontend directory)
-   npm run dev
+   npm start
    ```
 
 6. **Access the Application**
@@ -165,12 +203,19 @@ REDIS_URL=redis://localhost:6379
 # Authentication
 JWT_SECRET=your-jwt-secret
 JWT_EXPIRES_IN=24h
+REFRESH_TOKEN_SECRET=your-refresh-token-secret
 
 # Email
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=your-email@gmail.com
 SMTP_PASS=your-app-password
+
+# SMS (Optional)
+SMS_PROVIDER=twilio
+TWILIO_ACCOUNT_SID=your-twilio-sid
+TWILIO_AUTH_TOKEN=your-twilio-token
+TWILIO_PHONE_NUMBER=your-twilio-number
 
 # File Storage
 AWS_ACCESS_KEY_ID=your-access-key
@@ -200,70 +245,86 @@ npm run test
 # Frontend tests
 cd frontend
 npm run test
-
-# E2E tests
-npm run test:e2e
 ```
 
-## 📦 Deployment
+## 📚 Documentation
 
-### Docker Deployment
-```bash
-# Build and run with Docker Compose
-docker-compose up -d
-```
+Comprehensive documentation is available in the [HelpMe Wiki](https://github.com/RossNicholson/HelpMe-wiki):
 
-### Manual Deployment
-```bash
-# Build frontend
-cd frontend
-npm run build
-
-# Start production backend
-cd backend
-npm run start
-```
+- [Getting Started Guide](https://github.com/RossNicholson/HelpMe-wiki/wiki/Getting-Started)
+- [API Reference](https://github.com/RossNicholson/HelpMe-wiki/wiki/API-Reference)
+- [Deployment Guide](https://github.com/RossNicholson/HelpMe-wiki/wiki/Deployment)
+- [Feature Documentation](https://github.com/RossNicholson/HelpMe-wiki/wiki/Features)
+- [ITIL Best Practices](https://github.com/RossNicholson/HelpMe-wiki/wiki/ITIL-Compliance)
 
 ## 🤝 Contributing
 
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
-### Development Workflow
+### Development Setup
+
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit your changes: `git commit -m 'Add amazing feature'`
+4. Push to the branch: `git push origin feature/amazing-feature`
 5. Open a Pull Request
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## ☕ Support & Sponsorship
+## 🆘 Support
 
-If you find HelpMe useful and would like to support its development, consider:
-
-### ☕ Buy Me a Coffee
-[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Support%20Development-orange?style=for-the-badge&logo=buymeacoffee)](https://buymeacoffee.com/rossnicholson)
-
-Show your appreciation with a coffee! Every contribution helps keep HelpMe free and open source.
-
-## 🆘 Support & Resources
-
-- **Documentation**: README file and [GitHub Wiki](https://github.com/RossNicholson/HelpMe/wiki)
+- **Documentation**: [HelpMe Wiki](https://github.com/RossNicholson/HelpMe-wiki)
 - **Issues**: [GitHub Issues](https://github.com/RossNicholson/HelpMe/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/RossNicholson/HelpMe/discussions)
 - **Email**: helpme@rossnicholson.dev
-- **Website**: [rossnicholson.dev](https://rossnicholson.dev)
-- **Developer**: [Ross Nicholson](https://rossnicholson.dev)
 
-## 🙏 Acknowledgments
+## 🏆 Why HelpMe is the Best MSP Ticket System
 
-- Built with ❤️ for the MSP community
-- Inspired by the need for better, more secure, and ITIL-compliant helpdesk solutions
-- Thanks to all contributors and the open-source community
-- Special thanks to our sponsors and supporters!
+### 🏢 Enterprise-Grade Features
+- **Multi-tenant architecture** supporting unlimited clients and organizations
+- **Role-based access control** with granular permissions
+- **Complete audit logging** for compliance and security
+- **SLA management** with automated violation tracking
+- **Escalation rules** for automated ticket handling
+
+### 🔒 Security & Privacy
+- **On-premise deployment** - Your data never leaves your infrastructure
+- **No SaaS dependencies** - Complete control over your environment
+- **Encrypted data storage** with secure authentication
+- **Regular security updates** and vulnerability patches
+
+### 📊 ITIL Compliance
+- **ITIL-aligned workflows** and terminology
+- **Service lifecycle management** from request to resolution
+- **Configuration management** with asset tracking
+- **Change management** processes and approvals
+- **Knowledge management** with centralized documentation
+
+### 🚀 Performance & Scalability
+- **Modern tech stack** with React, Node.js, and PostgreSQL
+- **Real-time updates** via WebSocket connections
+- **Optimized database queries** with proper indexing
+- **Caching layer** for improved performance
+- **Horizontal scaling** capabilities
+
+### 💼 MSP-Specific Features
+- **Client portal** for self-service ticket management
+- **Time tracking** for accurate billing and productivity
+- **Contract management** with service level tracking
+- **Multi-location support** for distributed clients
+- **Integration APIs** for PSA and RMM tools
+
+### 🎯 User Experience
+- **Intuitive interface** designed for MSP workflows
+- **Mobile responsive** design for field technicians
+- **Advanced search and filtering** for quick data access
+- **Customizable dashboards** with key metrics
+- **Real-time notifications** via email and SMS
+
+HelpMe is the complete solution for MSPs who demand enterprise-grade functionality without the SaaS compromises. Deploy it on your infrastructure, customize it to your workflow, and scale it with your business.
 
 ---
 
-**HelpMe** - The #1 on-premise, ITIL-aligned helpdesk for MSPs who value privacy, security, and control.
+**Built with ❤️ for MSPs who value control, security, and ITIL best practices.**
