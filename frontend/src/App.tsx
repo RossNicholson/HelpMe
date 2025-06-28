@@ -15,6 +15,7 @@ import Login from './pages/Auth/Login';
 import Dashboard from './pages/Dashboard/Dashboard';
 import AnalyticsPage from './pages/Analytics/AnalyticsPage';
 import SMSPage from './pages/SMS/SMSPage';
+import AuditPage from './pages/Audit/AuditPage';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -120,6 +121,14 @@ const App: React.FC = () => {
                   <ProtectedRoute>
                     <Layout>
                       <SMSPage />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/audit" element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <AuditPage />
                     </Layout>
                   </ProtectedRoute>
                 } />

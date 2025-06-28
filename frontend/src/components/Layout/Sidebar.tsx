@@ -12,6 +12,7 @@ const Sidebar: React.FC = () => {
     { name: 'Knowledge Base', href: '/knowledge-base', icon: '📚' },
     { name: 'Reports', href: '/reports', icon: '📈' },
     { name: 'Analytics', href: '/analytics', icon: '📊' },
+    { name: 'Audit', href: '/audit', icon: '🔍' },
     { name: 'SMS', href: '/sms', icon: '📱' },
     { name: 'Settings', href: '/settings', icon: '⚙️' },
   ];
