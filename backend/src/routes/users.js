@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { protect, authorize } = require('../middleware/auth');
+const knex = require('../utils/database');
 
 /**
  * @swagger
@@ -16,14 +17,19 @@ const { protect, authorize } = require('../middleware/auth');
  */
 router.get('/', protect, authorize('admin'), async (req, res) => {
   try {
-    const db = req.app.get('db');
-    const users = await db('users')
+    const users = await knex('users')
       .select('id', 'email', 'first_name', 'last_name', 'role', 'organization_id', 'created_at')
       .where('organization_id', req.user.organization_id);
     
-    res.json(users);
+    res.json({
+      success: true,
+      data: users
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch users' });
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to fetch users' 
+    });
   }
 });
 
@@ -47,19 +53,27 @@ router.get('/', protect, authorize('admin'), async (req, res) => {
  */
 router.get('/:id', protect, async (req, res) => {
   try {
-    const db = req.app.get('db');
-    const user = await db('users')
+    const user = await knex('users')
       .select('id', 'email', 'first_name', 'last_name', 'role', 'organization_id', 'created_at')
       .where({ id: req.params.id, organization_id: req.user.organization_id })
       .first();
     
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ 
+        success: false,
+        error: 'User not found' 
+      });
     }
     
-    res.json(user);
+    res.json({
+      success: true,
+      data: user
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch user' });
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to fetch user' 
+    });
   }
 });
 
@@ -92,35 +106,46 @@ router.post('/', protect, authorize('admin'), async (req, res) => {
     const { email, password, first_name, last_name, role } = req.body;
     
     if (!email || !password || !first_name || !last_name || !role) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      return res.status(400).json({ 
+        success: false,
+        error: 'Missing required fields' 
+      });
     }
     
-    const db = req.app.get('db');
     const bcrypt = require('bcrypt');
     
     // Check if user already exists
-    const existingUser = await db('users')
+    const existingUser = await knex('users')
       .where({ email, organization_id: req.user.organization_id })
       .first();
     
     if (existingUser) {
-      return res.status(400).json({ error: 'User already exists' });
+      return res.status(400).json({ 
+        success: false,
+        error: 'User already exists' 
+      });
     }
     
     const hashedPassword = await bcrypt.hash(password, 10);
     
-    const [user] = await db('users').insert({
+    const [user] = await knex('users').insert({
       email,
-      password: hashedPassword,
+      password_hash: hashedPassword,
       first_name,
       last_name,
       role,
       organization_id: req.user.organization_id
     }).returning(['id', 'email', 'first_name', 'last_name', 'role', 'created_at']);
     
-    res.status(201).json(user);
+    res.status(201).json({
+      success: true,
+      data: user
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to create user' });
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to create user' 
+    });
   }
 });
 
@@ -145,11 +170,13 @@ router.post('/', protect, authorize('admin'), async (req, res) => {
 router.put('/:id', protect, async (req, res) => {
   try {
     const { first_name, last_name, role } = req.body;
-    const db = req.app.get('db');
     
     // Only allow admins to update other users, or users to update themselves
     if (req.params.id !== req.user.id && req.user.role !== 'admin') {
-      return res.status(403).json({ error: 'Insufficient permissions' });
+      return res.status(403).json({ 
+        success: false,
+        error: 'Insufficient permissions' 
+      });
     }
     
     const updateData = {};
@@ -157,18 +184,27 @@ router.put('/:id', protect, async (req, res) => {
     if (last_name) updateData.last_name = last_name;
     if (role && req.user.role === 'admin') updateData.role = role;
     
-    const [user] = await db('users')
+    const [user] = await knex('users')
       .where({ id: req.params.id, organization_id: req.user.organization_id })
       .update(updateData)
       .returning(['id', 'email', 'first_name', 'last_name', 'role', 'created_at']);
     
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ 
+        success: false,
+        error: 'User not found' 
+      });
     }
     
-    res.json(user);
+    res.json({
+      success: true,
+      data: user
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to update user' });
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to update user' 
+    });
   }
 });
 
@@ -192,24 +228,34 @@ router.put('/:id', protect, async (req, res) => {
  */
 router.delete('/:id', protect, authorize('admin'), async (req, res) => {
   try {
-    const db = req.app.get('db');
-    
     // Prevent deleting yourself
     if (req.params.id === req.user.id) {
-      return res.status(400).json({ error: 'Cannot delete your own account' });
+      return res.status(400).json({ 
+        success: false,
+        error: 'Cannot delete your own account' 
+      });
     }
     
-    const deleted = await db('users')
+    const deleted = await knex('users')
       .where({ id: req.params.id, organization_id: req.user.organization_id })
       .del();
     
     if (!deleted) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ 
+        success: false,
+        error: 'User not found' 
+      });
     }
     
-    res.json({ message: 'User deleted successfully' });
+    res.json({ 
+      success: true,
+      message: 'User deleted successfully' 
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to delete user' });
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to delete user' 
+    });
   }
 });
 

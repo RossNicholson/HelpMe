@@ -59,8 +59,4 @@ const closeConnection = async () => {
 process.on('SIGINT', closeConnection);
 process.on('SIGTERM', closeConnection);
 
-module.exports = {
-  db,
-  testConnection,
-  closeConnection,
-}; 
+module.exports = db; 
