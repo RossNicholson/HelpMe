@@ -221,4 +221,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**HelpMe** - Making IT support management easier, one ticket at a time. 
+**HelpMe** - Making IT support management easier, one ticket at a time.
