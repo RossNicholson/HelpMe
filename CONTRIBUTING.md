@@ -159,11 +159,6 @@ We use [Semantic Versioning](https://semver.org/):
 
 If you find HelpMe useful and would like to support its development:
 
-### 🌟 GitHub Sponsors
-[![GitHub Sponsors](https://img.shields.io/badge/GitHub%20Sponsors-Support%20Me-pink?style=for-the-badge&logo=github)](https://github.com/sponsors/RossNicholson)
-
-Support the project directly through GitHub Sponsors and get exclusive benefits!
-
 ### ☕ Buy Me a Coffee
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Support%20Development-orange?style=for-the-badge&logo=buymeacoffee)](https://buymeacoffee.com/rossnicholson)
 
