@@ -153,6 +153,21 @@ We use [Semantic Versioning](https://semver.org/):
 - **Issues**: Use GitHub Issues for bug reports and feature requests
 - **Discussions**: Use GitHub Discussions for questions and general discussion
 - **Email**: helpme@rossnicholson.dev for urgent matters
+- **Website**: [rossnicholson.dev](https://rossnicholson.dev)
+
+## ☕ Supporting the Project
+
+If you find HelpMe useful and would like to support its development:
+
+### 🌟 GitHub Sponsors
+[![GitHub Sponsors](https://img.shields.io/badge/GitHub%20Sponsors-Support%20Me-pink?style=for-the-badge&logo=github)](https://github.com/sponsors/RossNicholson)
+
+Support the project directly through GitHub Sponsors and get exclusive benefits!
+
+### ☕ Buy Me a Coffee
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Support%20Development-orange?style=for-the-badge&logo=buymeacoffee)](https://buymeacoffee.com/rossnicholson)
+
+Show your appreciation with a coffee! Every contribution helps keep HelpMe free and open source.
 
 ## 🙏 Recognition
 

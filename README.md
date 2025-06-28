@@ -6,10 +6,21 @@
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
 [![React](https://img.shields.io/badge/React-18+-blue.svg)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5+-blue.svg)](https://www.typescriptlang.org/)
+[![GitHub Sponsors](https://img.shields.io/badge/GitHub%20Sponsors-Support%20Me-pink?style=flat&logo=github)](https://github.com/sponsors/RossNicholson)
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Support%20Development-orange?style=flat&logo=buymeacoffee)](https://buymeacoffee.com/rossnicholson)
 
 ## 🎯 Overview
 
 HelpMe is a modern, open-source helpdesk ticket system specifically designed for IT Managed Service Providers (MSPs). Built with scalability, security, and ease of use in mind, it provides comprehensive ticket management, client communication, and reporting capabilities.
+
+## ☕ Support the Project
+
+If you find HelpMe useful, please consider supporting its development:
+
+[![GitHub Sponsors](https://img.shields.io/badge/GitHub%20Sponsors-Support%20Me-pink?style=for-the-badge&logo=github)](https://github.com/sponsors/RossNicholson)
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Support%20Development-orange?style=for-the-badge&logo=buymeacoffee)](https://buymeacoffee.com/rossnicholson)
+
+Your support helps keep HelpMe free and open source! 🌟
 
 ## ✨ Features
 
@@ -208,19 +219,35 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🆘 Support
+## ☕ Support & Sponsorship
+
+If you find HelpMe useful and would like to support its development, consider:
+
+### 🌟 GitHub Sponsors
+[![GitHub Sponsors](https://img.shields.io/badge/GitHub%20Sponsors-Support%20Me-pink?style=for-the-badge&logo=github)](https://github.com/sponsors/RossNicholson)
+
+Support the project directly through GitHub Sponsors and get exclusive benefits!
+
+### ☕ Buy Me a Coffee
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Support%20Development-orange?style=for-the-badge&logo=buymeacoffee)](https://buymeacoffee.com/rossnicholson)
+
+Show your appreciation with a coffee! Every contribution helps keep HelpMe free and open source.
+
+## 🆘 Support & Resources
 
 - **Documentation**: README file and [GitHub Wiki](https://github.com/RossNicholson/HelpMe/wiki)
 - **Issues**: [GitHub Issues](https://github.com/RossNicholson/HelpMe/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/RossNicholson/HelpMe/discussions)
 - **Email**: helpme@rossnicholson.dev
 - **Website**: [rossnicholson.dev](https://rossnicholson.dev)
+- **Developer**: [Ross Nicholson](https://rossnicholson.dev)
 
 ## 🙏 Acknowledgments
 
 - Built with ❤️ for the MSP community
 - Inspired by the need for better, more affordable helpdesk solutions
 - Thanks to all contributors and the open-source community
+- Special thanks to our sponsors and supporters!
 
 ---
 

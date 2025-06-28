@@ -109,7 +109,8 @@ If you discover a security vulnerability, please:
 ## Security Contacts
 
 - **Security Team**: security@rossnicholson.dev
-- **Maintainer**: [Your Contact Information]
+- **Maintainer**: [Ross Nicholson](https://rossnicholson.dev)
+- **Website**: [rossnicholson.dev](https://rossnicholson.dev)
 
 ## Compliance
 
