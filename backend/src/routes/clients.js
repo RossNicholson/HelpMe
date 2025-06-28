@@ -108,23 +108,39 @@ router.post('/', protect, async (req, res) => {
       });
     }
     
-    const [client] = await knex('clients').insert({
+    // Prepare client data
+    const clientData = {
       name,
       email,
       phone,
-      address,
       notes,
       organization_id: req.user.organization_id
-    }).returning('*');
+    };
+    
+    // Handle address field - convert string to JSON if provided
+    if (address && typeof address === 'string') {
+      try {
+        clientData.address = JSON.parse(address);
+      } catch (e) {
+        // If it's not valid JSON, store as a simple object
+        clientData.address = { text: address };
+      }
+    } else if (address) {
+      clientData.address = address;
+    }
+    
+    const [client] = await knex('clients').insert(clientData).returning('*');
     
     res.status(201).json({
       success: true,
       data: client
     });
   } catch (error) {
+    console.error('Error creating client:', error);
     res.status(500).json({ 
       success: false,
-      error: 'Failed to create client' 
+      error: 'Failed to create client',
+      details: error.message
     });
   }
 });
@@ -151,9 +167,29 @@ router.put('/:id', protect, async (req, res) => {
   try {
     const { name, email, phone, address, notes } = req.body;
     
+    // Prepare update data
+    const updateData = {
+      name,
+      email,
+      phone,
+      notes
+    };
+    
+    // Handle address field - convert string to JSON if provided
+    if (address && typeof address === 'string') {
+      try {
+        updateData.address = JSON.parse(address);
+      } catch (e) {
+        // If it's not valid JSON, store as a simple object
+        updateData.address = { text: address };
+      }
+    } else if (address) {
+      updateData.address = address;
+    }
+    
     const [client] = await knex('clients')
       .where({ id: req.params.id, organization_id: req.user.organization_id })
-      .update({ name, email, phone, address, notes })
+      .update(updateData)
       .returning('*');
     
     if (!client) {
@@ -168,9 +204,11 @@ router.put('/:id', protect, async (req, res) => {
       data: client
     });
   } catch (error) {
+    console.error('Error updating client:', error);
     res.status(500).json({ 
       success: false,
-      error: 'Failed to update client' 
+      error: 'Failed to update client',
+      details: error.message
     });
   }
 });
