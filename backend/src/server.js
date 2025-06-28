@@ -25,6 +25,7 @@ const timeTrackingRoutes = require('./routes/timeTracking');
 const clientPortalRoutes = require('./routes/clientPortal');
 const smsRoutes = require('./routes/sms');
 const contractRoutes = require('./routes/contracts');
+const auditRoutes = require('./routes/audit');
 
 const app = express();
 const server = createServer(app);
@@ -168,6 +169,7 @@ app.use('/api/time-tracking', timeTrackingRoutes);
 app.use('/api/client-portal', clientPortalRoutes);
 app.use('/api/sms', smsRoutes);
 app.use('/api/contracts', contractRoutes);
+app.use('/api/audit', auditRoutes);
 
 // Swagger API Documentation
 if (process.env.NODE_ENV === 'development') {
