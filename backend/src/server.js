@@ -94,16 +94,25 @@ app.use(helmet({
 
 app.use(compression());
 
-// CORS configuration - more restrictive
+// CORS configuration - more permissive for development
 const corsOptions = {
   origin: function (origin, callback) {
     const allowedOrigins = [
-      process.env.CORS_ORIGIN || "http://localhost:3000",
+      "http://localhost:3000",
+      "http://127.0.0.1:3000",
+      "http://localhost:3001",
+      "http://127.0.0.1:3001",
+      process.env.CORS_ORIGIN,
       process.env.FRONTEND_URL
     ].filter(Boolean);
     
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
+    
+    // Allow all localhost origins for development
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      return callback(null, true);
+    }
     
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
@@ -113,7 +122,7 @@ const corsOptions = {
   },
   credentials: true,
   optionsSuccessStatus: 200,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
 
