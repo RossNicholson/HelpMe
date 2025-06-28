@@ -210,7 +210,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🆘 Support
 
-- **Documentation**: [docs.helpme.com](https://docs.helpme.com)
+- **Documentation**: README file and [GitHub Wiki](https://github.com/RossNicholson/HelpMe/wiki)
 - **Issues**: [GitHub Issues](https://github.com/RossNicholson/HelpMe/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/RossNicholson/HelpMe/discussions)
 - **Email**: helpme@rossnicholson.dev
