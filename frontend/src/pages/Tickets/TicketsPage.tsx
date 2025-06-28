@@ -15,7 +15,8 @@ interface Ticket {
   status: 'open' | 'in_progress' | 'resolved' | 'closed';
   priority: 'low' | 'medium' | 'high' | 'critical';
   client_name: string;
-  assigned_to: string;
+  assignee_first_name: string | null;
+  assignee_last_name: string | null;
   created_at: string;
 }
 
@@ -29,6 +30,7 @@ const TicketsPage: React.FC = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [creating, setCreating] = useState(false);
   const [formData, setFormData] = useState({
@@ -46,11 +48,15 @@ const TicketsPage: React.FC = () => {
 
   const fetchTickets = async () => {
     try {
+      setError(null);
       const response = await ticketsAPI.getAll();
-      setTickets(response.data || []);
+      // The API returns {success: true, data: [...]}
+      const ticketsData = response.data?.data || [];
+      setTickets(Array.isArray(ticketsData) ? ticketsData : []);
     } catch (error) {
       console.error('Error fetching tickets:', error);
-      setTickets([]);
+      setError('Failed to load tickets');
+      setTickets([]); // Ensure tickets is always an array
     } finally {
       setLoading(false);
     }
@@ -59,7 +65,9 @@ const TicketsPage: React.FC = () => {
   const fetchClients = async () => {
     try {
       const response = await clientsAPI.getAll();
-      setClients(Array.isArray(response.data) ? response.data : []);
+      // The API returns {success: true, data: [...]}
+      const clientsData = response.data?.data || [];
+      setClients(Array.isArray(clientsData) ? clientsData : []);
     } catch (error) {
       console.error('Error fetching clients:', error);
       setClients([]);
@@ -125,6 +133,26 @@ const TicketsPage: React.FC = () => {
     );
   }
 
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold text-gray-900">Tickets</h1>
+          <Button onClick={() => setShowCreateModal(true)}>Create New Ticket</Button>
+        </div>
+        
+        <Card>
+          <CardContent className="flex items-center justify-center h-32">
+            <div className="text-center">
+              <p className="text-red-600 mb-2">{error}</p>
+              <Button onClick={fetchTickets} variant="outline">Retry</Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -173,7 +201,7 @@ const TicketsPage: React.FC = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>{ticket.client_name}</TableCell>
-                    <TableCell>{ticket.assigned_to}</TableCell>
+                    <TableCell>{ticket.assignee_first_name} {ticket.assignee_last_name}</TableCell>
                     <TableCell>{new Date(ticket.created_at).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <Button variant="outline" size="sm">View</Button>
@@ -199,83 +227,55 @@ const TicketsPage: React.FC = () => {
                 id="subject"
                 value={formData.subject}
                 onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                placeholder="Brief description of the issue"
+                placeholder="Enter ticket subject"
               />
             </div>
-            
             <div>
               <Label htmlFor="description">Description *</Label>
               <textarea
                 id="description"
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Detailed description of the issue"
-                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter ticket description"
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 rows={4}
               />
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="priority">Priority</Label>
-                <select
-                  id="priority"
-                  value={formData.priority}
-                  onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                  className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                  <option value="critical">Critical</option>
-                </select>
-              </div>
-              
-              <div>
-                <Label htmlFor="type">Type</Label>
-                <select
-                  id="type"
-                  value={formData.type}
-                  onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                  className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="incident">Incident</option>
-                  <option value="request">Request</option>
-                  <option value="problem">Problem</option>
-                  <option value="change">Change</option>
-                </select>
-              </div>
+            <div>
+              <Label htmlFor="priority">Priority</Label>
+              <select
+                id="priority"
+                value={formData.priority}
+                onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="critical">Critical</option>
+              </select>
             </div>
-
             <div>
               <Label htmlFor="client">Client *</Label>
               <select
                 id="client"
                 value={formData.client_id}
                 onChange={(e) => setFormData({ ...formData, client_id: e.target.value })}
-                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Select a client</option>
-                {Array.isArray(clients) && clients.map((client) => (
+                {clients.map((client) => (
                   <option key={client.id} value={client.id}>
-                    {client.name} ({client.email})
+                    {client.name}
                   </option>
                 ))}
               </select>
             </div>
-
-            <div className="flex justify-end space-x-2 pt-4">
-              <Button
-                variant="outline"
-                onClick={() => setShowCreateModal(false)}
-                disabled={creating}
-              >
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => setShowCreateModal(false)}>
                 Cancel
               </Button>
-              <Button
-                onClick={handleCreateTicket}
-                disabled={creating}
-              >
+              <Button onClick={handleCreateTicket} disabled={creating}>
                 {creating ? 'Creating...' : 'Create Ticket'}
               </Button>
             </div>
