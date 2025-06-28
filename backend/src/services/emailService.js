@@ -1,6 +1,63 @@
 const nodemailer = require('nodemailer');
 const logger = require('../utils/logger');
 
+// Robust HTML sanitization function
+const sanitizeHtml = (html) => {
+  if (!html || typeof html !== 'string') {
+    return '';
+  }
+  
+  // First pass: Remove all HTML tags completely
+  let sanitized = html.replace(/<[^>]*>/g, '');
+  
+  // Second pass: Handle any remaining angle brackets that might be part of malicious content
+  sanitized = sanitized.replace(/[<>]/g, '');
+  
+  // Third pass: Decode common HTML entities to prevent encoding-based attacks
+  sanitized = sanitized
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, ' ');
+  
+  // Fourth pass: Remove any remaining HTML entities
+  sanitized = sanitized.replace(/&[a-zA-Z0-9#]+;/g, '');
+  
+  // Fifth pass: Clean up extra whitespace
+  sanitized = sanitized.replace(/\s+/g, ' ').trim();
+  
+  return sanitized;
+};
+
+// Input validation and sanitization for email data
+const sanitizeEmailData = (data) => {
+  if (!data || typeof data !== 'object') {
+    return {};
+  }
+  
+  const sanitized = {};
+  for (const [key, value] of Object.entries(data)) {
+    if (typeof value === 'string') {
+      // Remove any HTML tags and dangerous characters from string values
+      sanitized[key] = value
+        .replace(/<[^>]*>/g, '')
+        .replace(/[<>]/g, '')
+        .replace(/javascript:/gi, '')
+        .replace(/on\w+=/gi, '')
+        .trim();
+    } else if (typeof value === 'number' || typeof value === 'boolean') {
+      sanitized[key] = value;
+    } else {
+      // Skip complex objects and arrays for security
+      sanitized[key] = '';
+    }
+  }
+  
+  return sanitized;
+};
+
 // Create transporter
 const createTransporter = () => {
   return nodemailer.createTransporter({
@@ -171,8 +228,10 @@ const sendEmail = async ({ to, subject, template, data, html, text }) => {
 
     // Use template if provided
     if (template && emailTemplates[template]) {
+      // Sanitize data before using in templates
+      const sanitizedData = sanitizeEmailData(data);
       emailSubject = emailTemplates[template].subject;
-      emailHtml = emailTemplates[template].html(data);
+      emailHtml = emailTemplates[template].html(sanitizedData);
     }
 
     const mailOptions = {
@@ -180,7 +239,7 @@ const sendEmail = async ({ to, subject, template, data, html, text }) => {
       to,
       subject: emailSubject,
       html: emailHtml,
-      text: emailText || emailHtml.replace(/<[^>]*>/g, '') // Strip HTML for text version
+      text: emailText || sanitizeHtml(emailHtml) // Use robust HTML sanitization
     };
 
     const info = await transporter.sendMail(mailOptions);
