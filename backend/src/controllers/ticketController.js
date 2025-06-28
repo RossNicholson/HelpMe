@@ -1,7 +1,8 @@
-const knex = require('../utils/database');
+const db = require('../utils/database');
 const slaService = require('../services/slaService');
 const escalationService = require('../services/escalationService');
 const smsService = require('../services/smsService');
+const clientUserService = require('../services/clientUserService');
 const logger = require('../utils/logger');
 
 /**
@@ -10,6 +11,8 @@ const logger = require('../utils/logger');
 const getTickets = async (req, res) => {
   try {
     const organizationId = req.user.organization_id;
+    const userId = req.user.id;
+    const userRole = req.user.role;
     const { 
       status, 
       priority, 
@@ -20,7 +23,7 @@ const getTickets = async (req, res) => {
       search
     } = req.query;
 
-    let query = knex('tickets')
+    let query = db('tickets')
       .join('clients', 'tickets.client_id', 'clients.id')
       .join('users as creator', 'tickets.created_by', 'creator.id')
       .leftJoin('users as assignee', 'tickets.assigned_to', 'assignee.id')
@@ -33,6 +36,42 @@ const getTickets = async (req, res) => {
         'assignee.first_name as assignee_first_name',
         'assignee.last_name as assignee_last_name'
       );
+
+    // For client users, filter tickets based on their permissions
+    if (userRole === 'client') {
+      // Get all clients the user has access to
+      const userClients = await clientUserService.getUserClients(userId, organizationId);
+      const clientIds = userClients.map(cu => cu.client_id);
+      
+      if (clientIds.length === 0) {
+        // User has no client access, return empty result
+        return res.json({
+          success: true,
+          data: [],
+          pagination: {
+            page: parseInt(page),
+            limit: parseInt(limit),
+            total: 0,
+            pages: 0
+          }
+        });
+      }
+
+      // Filter by user's accessible clients
+      query = query.whereIn('tickets.client_id', clientIds);
+
+      // Check if user can view all tickets for each client
+      const canViewAllTickets = await Promise.all(
+        clientIds.map(clientId => 
+          clientUserService.canUserViewAllTickets(userId, clientId, organizationId)
+        )
+      );
+
+      // If user can't view all tickets for any client, filter by tickets they created
+      if (!canViewAllTickets.some(can => can)) {
+        query = query.where('tickets.created_by', userId);
+      }
+    }
 
     // Apply filters
     if (status) {
@@ -65,7 +104,7 @@ const getTickets = async (req, res) => {
       .limit(limit)
       .offset(offset);
 
-    const total = await knex('tickets')
+    const total = await db('tickets')
       .where('organization_id', organizationId)
       .count('* as count')
       .first();
@@ -97,7 +136,7 @@ const getTicket = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const ticket = await knex('tickets')
+    const ticket = await db('tickets')
       .join('clients', 'tickets.client_id', 'clients.id')
       .join('users as creator', 'tickets.created_by', 'creator.id')
       .leftJoin('users as assignee', 'tickets.assigned_to', 'assignee.id')
@@ -120,7 +159,7 @@ const getTicket = async (req, res) => {
     }
 
     // Get ticket comments
-    const comments = await knex('ticket_comments')
+    const comments = await db('ticket_comments')
       .join('users', 'ticket_comments.user_id', 'users.id')
       .where('ticket_comments.ticket_id', id)
       .select(
@@ -174,6 +213,19 @@ const createTicket = async (req, res) => {
     }
 
     const organizationId = req.user.organization_id;
+    const userId = req.user.id;
+    const userRole = req.user.role;
+
+    // Check if user can create tickets for this client
+    if (userRole === 'client') {
+      const canCreateTickets = await clientUserService.canUserCreateTickets(userId, client_id, organizationId);
+      if (!canCreateTickets) {
+        return res.status(403).json({
+          success: false,
+          message: 'You do not have permission to create tickets for this client'
+        });
+      }
+    }
 
     // Generate ticket number
     const ticketNumber = await generateTicketNumber(organizationId);
@@ -181,7 +233,7 @@ const createTicket = async (req, res) => {
     // Calculate SLA due date
     const dueDate = await slaService.calculateSLADueDate(organizationId, priority, type);
 
-    const [ticket] = await knex('tickets')
+    const [ticket] = await db('tickets')
       .insert({
         organization_id: organizationId,
         client_id,
@@ -232,7 +284,7 @@ const updateTicket = async (req, res) => {
       custom_fields
     } = req.body;
 
-    const ticket = await knex('tickets')
+    const ticket = await db('tickets')
       .where('id', id)
       .first();
 
@@ -252,7 +304,7 @@ const updateTicket = async (req, res) => {
     if (tags) updateData.tags = JSON.stringify(tags);
     if (custom_fields) updateData.custom_fields = JSON.stringify(custom_fields);
 
-    const [updatedTicket] = await knex('tickets')
+    const [updatedTicket] = await db('tickets')
       .where('id', id)
       .update(updateData)
       .returning('*');
@@ -278,7 +330,7 @@ const deleteTicket = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const ticket = await knex('tickets')
+    const ticket = await db('tickets')
       .where('id', id)
       .first();
 
@@ -289,7 +341,7 @@ const deleteTicket = async (req, res) => {
       });
     }
 
-    await knex('tickets')
+    await db('tickets')
       .where('id', id)
       .del();
 
@@ -322,7 +374,7 @@ const addComment = async (req, res) => {
       });
     }
 
-    const [comment] = await knex('ticket_comments')
+    const [comment] = await db('ticket_comments')
       .insert({
         ticket_id: ticketId,
         user_id: req.user.id,
@@ -360,7 +412,7 @@ const updateStatus = async (req, res) => {
       });
     }
 
-    const [ticket] = await knex('tickets')
+    const [ticket] = await db('tickets')
       .where('id', id)
       .update({ status })
       .returning('*');
@@ -394,7 +446,7 @@ const assignTicket = async (req, res) => {
     const { id } = req.params;
     const { assigned_to } = req.body;
 
-    const [ticket] = await knex('tickets')
+    const [ticket] = await db('tickets')
       .where('id', id)
       .update({ assigned_to })
       .returning('*');
@@ -427,16 +479,16 @@ const getTicketStats = async (req, res) => {
   try {
     const { organizationId } = req.params;
 
-    const stats = await knex('tickets')
+    const stats = await db('tickets')
       .where('organization_id', organizationId)
       .select(
-        knex.raw('COUNT(*) as total_tickets'),
-        knex.raw('COUNT(CASE WHEN status = \'open\' THEN 1 END) as open_tickets'),
-        knex.raw('COUNT(CASE WHEN status = \'in_progress\' THEN 1 END) as in_progress_tickets'),
-        knex.raw('COUNT(CASE WHEN status = \'resolved\' THEN 1 END) as resolved_tickets'),
-        knex.raw('COUNT(CASE WHEN status = \'closed\' THEN 1 END) as closed_tickets'),
-        knex.raw('COUNT(CASE WHEN priority = \'high\' THEN 1 END) as high_priority_tickets'),
-        knex.raw('COUNT(CASE WHEN priority = \'urgent\' THEN 1 END) as urgent_tickets')
+        db.raw('COUNT(*) as total_tickets'),
+        db.raw('COUNT(CASE WHEN status = \'open\' THEN 1 END) as open_tickets'),
+        db.raw('COUNT(CASE WHEN status = \'in_progress\' THEN 1 END) as in_progress_tickets'),
+        db.raw('COUNT(CASE WHEN status = \'resolved\' THEN 1 END) as resolved_tickets'),
+        db.raw('COUNT(CASE WHEN status = \'closed\' THEN 1 END) as closed_tickets'),
+        db.raw('COUNT(CASE WHEN priority = \'high\' THEN 1 END) as high_priority_tickets'),
+        db.raw('COUNT(CASE WHEN priority = \'urgent\' THEN 1 END) as urgent_tickets')
       )
       .first();
 
@@ -461,7 +513,7 @@ const generateTicketNumber = async (organizationId) => {
   const year = new Date().getFullYear();
   const prefix = `TKT-${year}-`;
   
-  const lastTicket = await knex('tickets')
+  const lastTicket = await db('tickets')
     .where('organization_id', organizationId)
     .where('ticket_number', 'like', `${prefix}%`)
     .orderBy('ticket_number', 'desc')
@@ -482,7 +534,7 @@ const generateTicketNumber = async (organizationId) => {
 const sendTicketSMSNotifications = async (ticket, eventType) => {
   try {
     // Get client phone number
-    const client = await knex('clients')
+    const client = await db('clients')
       .where('id', ticket.client_id)
       .first();
 

@@ -1,4 +1,4 @@
-const knex = require('../utils/database');
+const db = require('../utils/database');
 const slaService = require('../services/slaService');
 const logger = require('../utils/logger');
 
@@ -11,7 +11,7 @@ class SLAController {
       const { organizationId } = req.params;
       const { is_active } = req.query;
 
-      let query = knex('sla_definitions')
+      let query = db('sla_definitions')
         .where('organization_id', organizationId);
 
       if (is_active !== undefined) {
@@ -41,7 +41,7 @@ class SLAController {
     try {
       const { id } = req.params;
 
-      const slaDefinition = await knex('sla_definitions')
+      const slaDefinition = await db('sla_definitions')
         .where('id', id)
         .first();
 
@@ -94,7 +94,7 @@ class SLAController {
         });
       }
 
-      const [slaDefinition] = await knex('sla_definitions')
+      const [slaDefinition] = await db('sla_definitions')
         .insert({
           organization_id,
           name,
@@ -132,7 +132,7 @@ class SLAController {
       const { id } = req.params;
       const updateData = req.body;
 
-      const [updatedSLA] = await knex('sla_definitions')
+      const [updatedSLA] = await db('sla_definitions')
         .where('id', id)
         .update({
           ...updateData,
@@ -168,7 +168,7 @@ class SLAController {
     try {
       const { id } = req.params;
 
-      const deleted = await knex('sla_definitions')
+      const deleted = await db('sla_definitions')
         .where('id', id)
         .del();
 
@@ -208,7 +208,7 @@ class SLAController {
         limit = 20
       } = req.query;
 
-      let query = knex('sla_violations')
+      let query = db('sla_violations')
         .join('tickets', 'tickets.id', 'sla_violations.ticket_id')
         .where('sla_violations.organization_id', organizationId)
         .select(
@@ -237,7 +237,7 @@ class SLAController {
         .limit(limit)
         .offset(offset);
 
-      const total = await knex('sla_violations')
+      const total = await db('sla_violations')
         .where('organization_id', organizationId)
         .count('* as count')
         .first();

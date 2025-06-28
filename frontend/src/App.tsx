@@ -20,6 +20,7 @@ import SMSPage from './pages/SMS/SMSPage';
 import AuditPage from './pages/Audit/AuditPage';
 import BillingPage from './pages/Billing/BillingPage';
 import TicketsPage from './pages/Tickets/TicketsPage';
+import CreateTicketPage from './pages/Tickets/CreateTicketPage';
 import ClientsPage from './pages/Clients/ClientsPage';
 import AssetsPage from './pages/Assets/AssetsPage';
 import KnowledgeBasePage from './pages/KnowledgeBase/KnowledgeBasePage';
@@ -166,6 +167,14 @@ const App: React.FC = () => {
                   <ProtectedRoute>
                     <Layout>
                       <TicketsPage />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/tickets/new" element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <CreateTicketPage />
                     </Layout>
                   </ProtectedRoute>
                 } />

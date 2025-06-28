@@ -1,4 +1,4 @@
-const knex = require('../utils/database');
+const db = require('../utils/database');
 const escalationService = require('../services/escalationService');
 const logger = require('../utils/logger');
 
@@ -11,7 +11,7 @@ class EscalationController {
       const { organizationId } = req.params;
       const { is_active } = req.query;
 
-      let query = knex('escalation_rules')
+      let query = db('escalation_rules')
         .where('organization_id', organizationId);
 
       if (is_active !== undefined) {
@@ -41,7 +41,7 @@ class EscalationController {
     try {
       const { id } = req.params;
 
-      const escalationRule = await knex('escalation_rules')
+      const escalationRule = await db('escalation_rules')
         .where('id', id)
         .first();
 
@@ -116,7 +116,7 @@ class EscalationController {
         });
       }
 
-      const [escalationRule] = await knex('escalation_rules')
+      const [escalationRule] = await db('escalation_rules')
         .insert({
           organization_id,
           name,
@@ -155,7 +155,7 @@ class EscalationController {
       const { id } = req.params;
       const updateData = req.body;
 
-      const [updatedRule] = await knex('escalation_rules')
+      const [updatedRule] = await db('escalation_rules')
         .where('id', id)
         .update({
           ...updateData,
@@ -191,7 +191,7 @@ class EscalationController {
     try {
       const { id } = req.params;
 
-      const deleted = await knex('escalation_rules')
+      const deleted = await db('escalation_rules')
         .where('id', id)
         .del();
 
@@ -278,13 +278,13 @@ class EscalationController {
       const { organizationId } = req.params;
 
       // Get users in the organization
-      const users = await knex('users')
+      const users = await db('users')
         .join('user_organizations', 'users.id', 'user_organizations.user_id')
         .where('user_organizations.organization_id', organizationId)
         .select('users.id', 'users.first_name', 'users.last_name', 'users.email');
 
       // Get roles in the organization
-      const roles = await knex('roles')
+      const roles = await db('roles')
         .where('organization_id', organizationId)
         .where('is_active', true)
         .select('id', 'name', 'description');
@@ -321,7 +321,7 @@ class EscalationController {
         });
       }
 
-      const rule = await knex('escalation_rules')
+      const rule = await db('escalation_rules')
         .where('id', ruleId)
         .first();
 
@@ -332,7 +332,7 @@ class EscalationController {
         });
       }
 
-      const ticket = await knex('tickets')
+      const ticket = await db('tickets')
         .where('id', ticketId)
         .first();
 

@@ -1,4 +1,4 @@
-const knex = require('../utils/database');
+const db = require('../utils/database');
 const smsService = require('./smsService');
 const logger = require('../utils/logger');
 
@@ -8,7 +8,7 @@ class SLAService {
    */
   async calculateSLADueDate(organizationId, priority, ticketType, startTime = new Date()) {
     try {
-      const slaDefinition = await knex('sla_definitions')
+      const slaDefinition = await db('sla_definitions')
         .where({
           organization_id: organizationId,
           priority: priority,
@@ -93,7 +93,7 @@ class SLAService {
    */
   async checkSLAViolations(ticketId) {
     try {
-      const ticket = await knex('tickets')
+      const ticket = await db('tickets')
         .join('clients', 'tickets.client_id', 'clients.id')
         .join('users as creator', 'tickets.created_by', 'creator.id')
         .leftJoin('users as assignee', 'tickets.assigned_to', 'assignee.id')
@@ -112,7 +112,7 @@ class SLAService {
         throw new Error('Ticket not found');
       }
 
-      const slaDefinition = await knex('sla_definitions')
+      const slaDefinition = await db('sla_definitions')
         .where({
           organization_id: ticket.organization_id,
           priority: ticket.priority,
@@ -170,7 +170,7 @@ class SLAService {
 
       // Insert violations and send SMS notifications
       for (const violation of violations) {
-        await knex('sla_violations').insert(violation);
+        await db('sla_violations').insert(violation);
         
         // Send SMS notifications for SLA violations
         try {
@@ -193,20 +193,20 @@ class SLAService {
    */
   async getSLAStats(organizationId, startDate, endDate) {
     try {
-      const stats = await knex('sla_violations')
+      const stats = await db('sla_violations')
         .where('organization_id', organizationId)
         .whereBetween('created_at', [startDate, endDate])
         .select('violation_type')
         .count('* as count')
         .groupBy('violation_type');
 
-      const totalTickets = await knex('tickets')
+      const totalTickets = await db('tickets')
         .where('organization_id', organizationId)
         .whereBetween('created_at', [startDate, endDate])
         .count('* as count')
         .first();
 
-      const resolvedViolations = await knex('sla_violations')
+      const resolvedViolations = await db('sla_violations')
         .where('organization_id', organizationId)
         .whereBetween('created_at', [startDate, endDate])
         .where('is_resolved', true)
@@ -233,7 +233,7 @@ class SLAService {
    */
   async resolveSLAViolation(ticketId, violationType) {
     try {
-      await knex('sla_violations')
+      await db('sla_violations')
         .where({
           ticket_id: ticketId,
           violation_type: violationType,
@@ -287,7 +287,7 @@ class SLAService {
       }
 
       // Send to managers/admins (you can extend this based on your role system)
-      const managers = await knex('users')
+      const managers = await db('users')
         .join('user_organizations', 'users.id', 'user_organizations.user_id')
         .where('user_organizations.organization_id', ticket.organization_id)
         .where('user_organizations.role', 'admin')

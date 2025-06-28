@@ -1,4 +1,4 @@
-const knex = require('../utils/database');
+const db = require('../utils/database');
 const logger = require('../utils/logger');
 
 /**
@@ -11,43 +11,43 @@ const getDashboardStats = async (req, res) => {
     today.setHours(0, 0, 0, 0);
 
     // Get ticket statistics
-    const ticketStats = await knex('tickets')
+    const ticketStats = await db('tickets')
       .where('organization_id', organizationId)
       .select(
-        knex.raw('COUNT(*) as total_tickets'),
-        knex.raw('COUNT(CASE WHEN status = \'open\' THEN 1 END) as open_tickets'),
-        knex.raw('COUNT(CASE WHEN status = \'resolved\' THEN 1 END) as resolved_tickets'),
-        knex.raw('COUNT(CASE WHEN status = \'closed\' THEN 1 END) as closed_tickets'),
-        knex.raw('COUNT(CASE WHEN priority = \'high\' THEN 1 END) as high_priority'),
-        knex.raw('COUNT(CASE WHEN priority = \'critical\' THEN 1 END) as critical_tickets'),
-        knex.raw('COUNT(CASE WHEN due_date < NOW() AND status != \'resolved\' AND status != \'closed\' THEN 1 END) as overdue_tickets'),
-        knex.raw('COUNT(CASE WHEN DATE(created_at) = DATE(NOW()) THEN 1 END) as tickets_today'),
-        knex.raw('COUNT(CASE WHEN DATE(resolved_at) = DATE(NOW()) THEN 1 END) as resolved_today')
+        db.raw('COUNT(*) as total_tickets'),
+        db.raw('COUNT(CASE WHEN status = \'open\' THEN 1 END) as open_tickets'),
+        db.raw('COUNT(CASE WHEN status = \'resolved\' THEN 1 END) as resolved_tickets'),
+        db.raw('COUNT(CASE WHEN status = \'closed\' THEN 1 END) as closed_tickets'),
+        db.raw('COUNT(CASE WHEN priority = \'high\' THEN 1 END) as high_priority'),
+        db.raw('COUNT(CASE WHEN priority = \'critical\' THEN 1 END) as critical_tickets'),
+        db.raw('COUNT(CASE WHEN due_date < NOW() AND status != \'resolved\' AND status != \'closed\' THEN 1 END) as overdue_tickets'),
+        db.raw('COUNT(CASE WHEN DATE(created_at) = DATE(NOW()) THEN 1 END) as tickets_today'),
+        db.raw('COUNT(CASE WHEN DATE(resolved_at) = DATE(NOW()) THEN 1 END) as resolved_today')
       )
       .first();
 
     // Get client statistics
-    const clientStats = await knex('clients')
+    const clientStats = await db('clients')
       .where('organization_id', organizationId)
       .select(
-        knex.raw('COUNT(*) as total_clients'),
-        knex.raw('COUNT(CASE WHEN is_active = true THEN 1 END) as active_clients')
+        db.raw('COUNT(*) as total_clients'),
+        db.raw('COUNT(CASE WHEN is_active = true THEN 1 END) as active_clients')
       )
       .first();
 
     // Get user statistics
-    const userStats = await knex('users')
+    const userStats = await db('users')
       .join('user_organizations', 'users.id', 'user_organizations.user_id')
       .where('user_organizations.organization_id', organizationId)
       .select(
-        knex.raw('COUNT(*) as total_users'),
-        knex.raw('COUNT(CASE WHEN users.role = \'admin\' THEN 1 END) as admin_users'),
-        knex.raw('COUNT(CASE WHEN users.role = \'technician\' THEN 1 END) as technician_users')
+        db.raw('COUNT(*) as total_users'),
+        db.raw('COUNT(CASE WHEN users.role = \'admin\' THEN 1 END) as admin_users'),
+        db.raw('COUNT(CASE WHEN users.role = \'technician\' THEN 1 END) as technician_users')
       )
       .first();
 
     // Get recent activity (last 10 ticket updates)
-    const recentActivity = await knex('tickets')
+    const recentActivity = await db('tickets')
       .join('clients', 'tickets.client_id', 'clients.id')
       .join('users as creator', 'tickets.created_by', 'creator.id')
       .leftJoin('users as assignee', 'tickets.assigned_to', 'assignee.id')
@@ -71,23 +71,23 @@ const getDashboardStats = async (req, res) => {
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-    const ticketTrends = await knex('tickets')
+    const ticketTrends = await db('tickets')
       .where('organization_id', organizationId)
       .where('created_at', '>=', sevenDaysAgo)
       .select(
-        knex.raw('DATE(created_at) as date'),
-        knex.raw('COUNT(*) as count')
+        db.raw('DATE(created_at) as date'),
+        db.raw('COUNT(*) as count')
       )
-      .groupBy(knex.raw('DATE(created_at)'))
+      .groupBy(db.raw('DATE(created_at)'))
       .orderBy('date', 'asc');
 
     // Get priority distribution
-    const priorityDistribution = await knex('tickets')
+    const priorityDistribution = await db('tickets')
       .where('organization_id', organizationId)
       .where('status', '!=', 'closed')
       .select(
         'priority',
-        knex.raw('COUNT(*) as count')
+        db.raw('COUNT(*) as count')
       )
       .groupBy('priority')
       .orderBy('priority', 'asc');

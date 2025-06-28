@@ -15,7 +15,7 @@ const knex = require('../utils/database');
  *       200:
  *         description: List of users
  */
-router.get('/', protect, authorize('admin'), async (req, res) => {
+router.get('/', protect, authorize(['admin']), async (req, res) => {
   try {
     const users = await knex('users')
       .select('id', 'email', 'first_name', 'last_name', 'role', 'organization_id', 'created_at')
@@ -101,7 +101,7 @@ router.get('/:id', protect, async (req, res) => {
  *       201:
  *         description: User created successfully
  */
-router.post('/', protect, authorize('admin'), async (req, res) => {
+router.post('/', protect, authorize(['admin']), async (req, res) => {
   try {
     const { email, password, first_name, last_name, role } = req.body;
     

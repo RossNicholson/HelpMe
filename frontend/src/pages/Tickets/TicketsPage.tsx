@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
@@ -138,7 +139,9 @@ const TicketsPage: React.FC = () => {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold text-gray-900">Tickets</h1>
-          <Button onClick={() => setShowCreateModal(true)}>Create New Ticket</Button>
+          <Link to="/tickets/new">
+            <Button>Create New Ticket</Button>
+          </Link>
         </div>
         
         <Card>
@@ -157,7 +160,9 @@ const TicketsPage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900">Tickets</h1>
-        <Button onClick={() => setShowCreateModal(true)}>Create New Ticket</Button>
+        <Link to="/tickets/new">
+          <Button>Create New Ticket</Button>
+        </Link>
       </div>
 
       <Card>
