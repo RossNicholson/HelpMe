@@ -20,6 +20,30 @@ If you find HelpMe useful, please consider supporting its development:
 
 Your support helps keep HelpMe free and open source! 🌟
 
+## 🚀 Professional Services
+
+Need help getting HelpMe up and running, or want custom features for your MSP? I offer professional services to help you succeed:
+
+### 🛠️ Implementation & Setup
+- **Complete HelpMe Installation** - Get your helpdesk running quickly and correctly
+- **Database Migration** - Seamless transition from your existing systems
+- **Custom Configuration** - Tailored setup for your specific MSP needs
+- **Training & Documentation** - Get your team up to speed efficiently
+
+### 🎯 Custom Development
+- **Feature Development** - Custom features built specifically for your workflow
+- **Integration Services** - Connect HelpMe with your existing tools and systems
+- **API Customization** - Extend HelpMe's capabilities to match your requirements
+- **White-label Solutions** - Brand HelpMe with your company's identity
+
+### 📞 Get Started
+Ready to transform your MSP's helpdesk operations? Let's discuss how I can help:
+
+**Email**: helpme@rossnicholson.dev  
+**Website**: [rossnicholson.dev](https://rossnicholson.dev)
+
+*From initial setup to custom development - I'm here to make HelpMe work perfectly for your business.*
+
 ## ✨ Features
 
 ### Core Functionality
