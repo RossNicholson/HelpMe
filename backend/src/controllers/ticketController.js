@@ -1,6 +1,7 @@
 const knex = require('../utils/database');
 const slaService = require('../services/slaService');
 const escalationService = require('../services/escalationService');
+const smsService = require('../services/smsService');
 const logger = require('../utils/logger');
 
 class TicketController {
@@ -204,6 +205,14 @@ class TicketController {
       // Check for escalation rules
       await escalationService.checkEscalationRules(ticket.id);
 
+      // Send SMS notifications
+      try {
+        await this.sendTicketSMSNotifications(ticket, 'ticket_created');
+      } catch (smsError) {
+        logger.error('Failed to send SMS notifications for ticket creation:', smsError);
+        // Don't fail the ticket creation if SMS fails
+      }
+
       res.status(201).json({
         success: true,
         data: ticket
@@ -276,6 +285,14 @@ class TicketController {
 
       // Check for escalation rules
       await escalationService.checkEscalationRules(id);
+
+      // Send SMS notifications
+      try {
+        await this.sendTicketSMSNotifications(updatedTicket, 'ticket_updated');
+      } catch (smsError) {
+        logger.error('Failed to send SMS notifications for ticket update:', smsError);
+        // Don't fail the ticket update if SMS fails
+      }
 
       res.json({
         success: true,
@@ -413,6 +430,69 @@ class TicketController {
         message: 'Failed to get ticket stats',
         error: error.message
       });
+    }
+  }
+
+  /**
+   * Send SMS notifications for ticket events
+   */
+  async sendTicketSMSNotifications(ticket, eventType) {
+    try {
+      // Get assigned user's SMS preferences
+      if (ticket.assigned_to) {
+        const userPreferences = await smsService.getUserSMSPreferences(ticket.assigned_to);
+        
+        for (const preference of userPreferences) {
+          if (preference.notification_types && preference.notification_types.includes(eventType)) {
+            const variables = {
+              ticket_id: ticket.ticket_number,
+              subject: ticket.subject,
+              priority: ticket.priority,
+              status: ticket.status,
+              assigned_to: `${ticket.assignee_first_name || ''} ${ticket.assignee_last_name || ''}`.trim(),
+              updated_by: `${ticket.creator_first_name || ''} ${ticket.creator_last_name || ''}`.trim()
+            };
+
+            await smsService.sendSMSTemplate(
+              ticket.organization_id,
+              preference.phone_number,
+              eventType,
+              variables,
+              {
+                userId: ticket.assigned_to,
+                ticketId: ticket.id
+              }
+            );
+          }
+        }
+      }
+
+      // Get client's SMS preferences
+      const clientPreferences = await smsService.getClientSMSPreferences(ticket.client_id);
+      
+      for (const preference of clientPreferences) {
+        if (preference.notification_types && preference.notification_types.includes('client_ticket_update')) {
+          const variables = {
+            ticket_id: ticket.ticket_number,
+            status: ticket.status,
+            message: `Ticket updated by ${ticket.creator_first_name || ''} ${ticket.creator_last_name || ''}`.trim()
+          };
+
+          await smsService.sendSMSTemplate(
+            ticket.organization_id,
+            preference.phone_number,
+            'client_ticket_update',
+            variables,
+            {
+              clientId: ticket.client_id,
+              ticketId: ticket.id
+            }
+          );
+        }
+      }
+    } catch (error) {
+      logger.error('Error sending SMS notifications:', error);
+      throw error;
     }
   }
 }

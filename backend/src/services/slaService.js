@@ -1,4 +1,5 @@
 const knex = require('../utils/database');
+const smsService = require('./smsService');
 const logger = require('../utils/logger');
 
 class SLAService {
@@ -93,7 +94,18 @@ class SLAService {
   async checkSLAViolations(ticketId) {
     try {
       const ticket = await knex('tickets')
-        .where('id', ticketId)
+        .join('clients', 'tickets.client_id', 'clients.id')
+        .join('users as creator', 'tickets.created_by', 'creator.id')
+        .leftJoin('users as assignee', 'tickets.assigned_to', 'assignee.id')
+        .where('tickets.id', ticketId)
+        .select(
+          'tickets.*',
+          'clients.name as client_name',
+          'creator.first_name as creator_first_name',
+          'creator.last_name as creator_last_name',
+          'assignee.first_name as assignee_first_name',
+          'assignee.last_name as assignee_last_name'
+        )
         .first();
 
       if (!ticket) {
@@ -156,9 +168,17 @@ class SLAService {
         }
       }
 
-      // Insert violations
+      // Insert violations and send SMS notifications
       for (const violation of violations) {
         await knex('sla_violations').insert(violation);
+        
+        // Send SMS notifications for SLA violations
+        try {
+          await this.sendSLAViolationSMS(ticket, violation);
+        } catch (smsError) {
+          logger.error('Failed to send SLA violation SMS:', smsError);
+          // Don't fail the violation check if SMS fails
+        }
       }
 
       return violations;
@@ -226,6 +246,75 @@ class SLAService {
         });
     } catch (error) {
       logger.error('Error resolving SLA violation:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Send SMS notifications for SLA violations
+   */
+  async sendSLAViolationSMS(ticket, violation) {
+    try {
+      const hours = Math.floor(violation.violation_minutes / 60);
+      const minutes = violation.violation_minutes % 60;
+      const breachTime = `${hours}h ${minutes}m`;
+
+      const variables = {
+        ticket_id: ticket.ticket_number,
+        breach_time: breachTime,
+        priority: ticket.priority,
+        violation_type: violation.violation_type === 'response_time' ? 'Response Time' : 'Resolution Time'
+      };
+
+      // Send to assigned user
+      if (ticket.assigned_to) {
+        const userPreferences = await smsService.getUserSMSPreferences(ticket.assigned_to);
+        
+        for (const preference of userPreferences) {
+          if (preference.notification_types && preference.notification_types.includes('sla_breached')) {
+            await smsService.sendSMSTemplate(
+              ticket.organization_id,
+              preference.phone_number,
+              'sla_breached',
+              variables,
+              {
+                userId: ticket.assigned_to,
+                ticketId: ticket.id
+              }
+            );
+          }
+        }
+      }
+
+      // Send to managers/admins (you can extend this based on your role system)
+      const managers = await knex('users')
+        .join('user_organizations', 'users.id', 'user_organizations.user_id')
+        .where('user_organizations.organization_id', ticket.organization_id)
+        .where('user_organizations.role', 'admin')
+        .select('users.id');
+
+      for (const manager of managers) {
+        if (manager.id !== ticket.assigned_to) { // Don't send duplicate to assigned user
+          const userPreferences = await smsService.getUserSMSPreferences(manager.id);
+          
+          for (const preference of userPreferences) {
+            if (preference.notification_types && preference.notification_types.includes('sla_breached')) {
+              await smsService.sendSMSTemplate(
+                ticket.organization_id,
+                preference.phone_number,
+                'sla_breached',
+                variables,
+                {
+                  userId: manager.id,
+                  ticketId: ticket.id
+                }
+              );
+            }
+          }
+        }
+      }
+    } catch (error) {
+      logger.error('Error sending SLA violation SMS:', error);
       throw error;
     }
   }

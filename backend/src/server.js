@@ -23,6 +23,7 @@ const slaRoutes = require('./routes/sla');
 const escalationRoutes = require('./routes/escalation');
 const timeTrackingRoutes = require('./routes/timeTracking');
 const clientPortalRoutes = require('./routes/clientPortal');
+const smsRoutes = require('./routes/sms');
 
 const app = express();
 const server = createServer(app);
@@ -77,6 +78,7 @@ app.use('/api/sla', slaRoutes);
 app.use('/api/escalation', escalationRoutes);
 app.use('/api/time-tracking', timeTrackingRoutes);
 app.use('/api/client-portal', clientPortalRoutes);
+app.use('/api/sms', smsRoutes);
 
 // Swagger API Documentation
 if (process.env.NODE_ENV === 'development') {
