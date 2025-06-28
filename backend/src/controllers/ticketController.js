@@ -199,59 +199,42 @@ const createTicket = async (req, res) => {
       priority = 'medium',
       type = 'incident',
       source = 'portal',
-      assigned_to,
+      due_date,
       tags = [],
       custom_fields = {}
     } = req.body;
 
-    // Validate required fields
     if (!client_id || !subject || !description) {
       return res.status(400).json({
         success: false,
-        message: 'Missing required fields'
+        message: 'Client ID, subject, and description are required'
       });
     }
 
     const organizationId = req.user.organization_id;
-    const userId = req.user.id;
-    const userRole = req.user.role;
-
-    // Check if user can create tickets for this client
-    if (userRole === 'client') {
-      const canCreateTickets = await clientUserService.canUserCreateTickets(userId, client_id, organizationId);
-      if (!canCreateTickets) {
-        return res.status(403).json({
-          success: false,
-          message: 'You do not have permission to create tickets for this client'
-        });
-      }
-    }
-
-    // Generate ticket number
     const ticketNumber = await generateTicketNumber(organizationId);
 
-    // Calculate SLA due date
-    const dueDate = await slaService.calculateSLADueDate(organizationId, priority, type);
-
+    // New tickets are always unassigned initially
     const [ticket] = await db('tickets')
       .insert({
         organization_id: organizationId,
         client_id,
         created_by: req.user.id,
-        assigned_to,
+        assigned_to: null, // Always null for new tickets
         ticket_number: ticketNumber,
         subject,
         description,
         priority,
         type,
         source,
-        due_date: dueDate,
+        status: 'unassigned', // New tickets are unassigned
+        due_date,
         tags: JSON.stringify(tags),
         custom_fields: JSON.stringify(custom_fields)
       })
       .returning('*');
 
-    // Send notifications
+    // Send SMS notification
     await sendTicketSMSNotifications(ticket, 'created');
 
     res.status(201).json({
@@ -446,9 +429,18 @@ const assignTicket = async (req, res) => {
     const { id } = req.params;
     const { assigned_to } = req.body;
 
+    // Determine the new status based on assignment
+    let newStatus = 'unassigned';
+    if (assigned_to) {
+      newStatus = 'assigned';
+    }
+
     const [ticket] = await db('tickets')
       .where('id', id)
-      .update({ assigned_to })
+      .update({ 
+        assigned_to,
+        status: newStatus // Automatically update status based on assignment
+      })
       .returning('*');
 
     if (!ticket) {
@@ -456,6 +448,11 @@ const assignTicket = async (req, res) => {
         success: false,
         message: 'Ticket not found'
       });
+    }
+
+    // Send SMS notification if assigned
+    if (assigned_to) {
+      await sendTicketSMSNotifications(ticket, 'assigned');
     }
 
     res.json({
@@ -483,12 +480,12 @@ const getTicketStats = async (req, res) => {
       .where('organization_id', organizationId)
       .select(
         db.raw('COUNT(*) as total_tickets'),
-        db.raw('COUNT(CASE WHEN status = \'open\' THEN 1 END) as open_tickets'),
+        db.raw('COUNT(CASE WHEN status = \'unassigned\' THEN 1 END) as unassigned_tickets'),
+        db.raw('COUNT(CASE WHEN status = \'assigned\' THEN 1 END) as assigned_tickets'),
         db.raw('COUNT(CASE WHEN status = \'in_progress\' THEN 1 END) as in_progress_tickets'),
-        db.raw('COUNT(CASE WHEN status = \'resolved\' THEN 1 END) as resolved_tickets'),
         db.raw('COUNT(CASE WHEN status = \'closed\' THEN 1 END) as closed_tickets'),
         db.raw('COUNT(CASE WHEN priority = \'high\' THEN 1 END) as high_priority_tickets'),
-        db.raw('COUNT(CASE WHEN priority = \'urgent\' THEN 1 END) as urgent_tickets')
+        db.raw('COUNT(CASE WHEN priority = \'critical\' THEN 1 END) as critical_tickets')
       )
       .first();
 

@@ -15,14 +15,15 @@ const getDashboardStats = async (req, res) => {
       .where('organization_id', organizationId)
       .select(
         db.raw('COUNT(*) as total_tickets'),
-        db.raw('COUNT(CASE WHEN status = \'open\' THEN 1 END) as open_tickets'),
-        db.raw('COUNT(CASE WHEN status = \'resolved\' THEN 1 END) as resolved_tickets'),
+        db.raw('COUNT(CASE WHEN status = \'unassigned\' THEN 1 END) as unassigned_tickets'),
+        db.raw('COUNT(CASE WHEN status = \'assigned\' THEN 1 END) as assigned_tickets'),
+        db.raw('COUNT(CASE WHEN status = \'in_progress\' THEN 1 END) as in_progress_tickets'),
         db.raw('COUNT(CASE WHEN status = \'closed\' THEN 1 END) as closed_tickets'),
         db.raw('COUNT(CASE WHEN priority = \'high\' THEN 1 END) as high_priority'),
         db.raw('COUNT(CASE WHEN priority = \'critical\' THEN 1 END) as critical_tickets'),
-        db.raw('COUNT(CASE WHEN due_date < NOW() AND status != \'resolved\' AND status != \'closed\' THEN 1 END) as overdue_tickets'),
+        db.raw('COUNT(CASE WHEN due_date < NOW() AND status != \'closed\' THEN 1 END) as overdue_tickets'),
         db.raw('COUNT(CASE WHEN DATE(created_at) = DATE(NOW()) THEN 1 END) as tickets_today'),
-        db.raw('COUNT(CASE WHEN DATE(resolved_at) = DATE(NOW()) THEN 1 END) as resolved_today')
+        db.raw('COUNT(CASE WHEN DATE(closed_at) = DATE(NOW()) THEN 1 END) as closed_today')
       )
       .first();
 
@@ -97,14 +98,15 @@ const getDashboardStats = async (req, res) => {
       data: {
         tickets: {
           total: parseInt(ticketStats.total_tickets) || 0,
-          open: parseInt(ticketStats.open_tickets) || 0,
-          resolved: parseInt(ticketStats.resolved_tickets) || 0,
+          unassigned: parseInt(ticketStats.unassigned_tickets) || 0,
+          assigned: parseInt(ticketStats.assigned_tickets) || 0,
+          inProgress: parseInt(ticketStats.in_progress_tickets) || 0,
           closed: parseInt(ticketStats.closed_tickets) || 0,
           highPriority: parseInt(ticketStats.high_priority) || 0,
           critical: parseInt(ticketStats.critical_tickets) || 0,
           overdue: parseInt(ticketStats.overdue_tickets) || 0,
           createdToday: parseInt(ticketStats.tickets_today) || 0,
-          resolvedToday: parseInt(ticketStats.resolved_today) || 0
+          closedToday: parseInt(ticketStats.closed_today) || 0
         },
         clients: {
           total: parseInt(clientStats.total_clients) || 0,

@@ -10,7 +10,7 @@ interface Ticket {
   id: string;
   subject: string;
   description: string;
-  status: 'open' | 'in_progress' | 'resolved' | 'closed';
+  status: 'unassigned' | 'assigned' | 'in_progress' | 'closed';
   priority: 'low' | 'medium' | 'high' | 'critical';
   client_id: string;
   client_name: string;
@@ -35,7 +35,7 @@ const EditTicketPage: React.FC = () => {
     subject: '',
     description: '',
     priority: 'medium',
-    status: 'open',
+    status: 'unassigned',
     client_id: '',
     type: 'incident'
   });
@@ -58,7 +58,7 @@ const EditTicketPage: React.FC = () => {
           subject: ticketData.subject || '',
           description: ticketData.description || '',
           priority: ticketData.priority || 'medium',
-          status: ticketData.status || 'open',
+          status: ticketData.status || 'unassigned',
           client_id: ticketData.client_id || '',
           type: ticketData.type || 'incident'
         });
@@ -188,9 +188,9 @@ const EditTicketPage: React.FC = () => {
                   onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                   className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="open">Open</option>
+                  <option value="unassigned">Unassigned</option>
+                  <option value="assigned">Assigned</option>
                   <option value="in_progress">In Progress</option>
-                  <option value="resolved">Resolved</option>
                   <option value="closed">Closed</option>
                 </select>
               </div>
