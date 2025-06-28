@@ -51,9 +51,9 @@ const Register: React.FC = () => {
           password: formData.password,
           first_name: formData.first_name,
           last_name: formData.last_name,
-          phone: formData.phone,
+          phone: formData.phone || undefined,
           role: formData.role,
-          organization_name: formData.organization_name
+          organization_name: formData.organization_name || undefined
         }),
       });
 
@@ -128,51 +128,6 @@ const Register: React.FC = () => {
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                 placeholder="Email address"
                 value={formData.email}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="phone" className="sr-only">
-                Phone Number
-              </label>
-              <input
-                id="phone"
-                name="phone"
-                type="tel"
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Phone Number (optional)"
-                value={formData.phone}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="role" className="sr-only">
-                Role
-              </label>
-              <select
-                id="role"
-                name="role"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                value={formData.role}
-                onChange={handleChange}
-              >
-                <option value="client">Client</option>
-                <option value="technician">Technician</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
-            <div>
-              <label htmlFor="organization_name" className="sr-only">
-                Organization Name
-              </label>
-              <input
-                id="organization_name"
-                name="organization_name"
-                type="text"
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Organization Name (optional)"
-                value={formData.organization_name}
                 onChange={handleChange}
               />
             </div>

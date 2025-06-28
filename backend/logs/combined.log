@@ -232,3 +232,7 @@
 {"level":"info","message":"📚 API Documentation: http://localhost:8000/api-docs","service":"helpme-api","timestamp":"2025-06-28 15:02:48"}
 {"level":"info","message":"🏥 Health Check: http://localhost:8000/health","service":"helpme-api","timestamp":"2025-06-28 15:02:48"}
 {"level":"info","message":"Client connected: 6gXyshBZkD0KVUwuAAAB","service":"helpme-api","timestamp":"2025-06-28 15:02:48"}
+{"level":"info","message":"Client disconnected: 6gXyshBZkD0KVUwuAAAB","service":"helpme-api","timestamp":"2025-06-28 15:03:58"}
+{"level":"info","message":"Client connected: ndYi-7q4eewVGt1KAAAE","service":"helpme-api","timestamp":"2025-06-28 15:03:59"}
+{"level":"info","message":"Client connected: LZEj1CSsnYvhDIOyAAAH","service":"helpme-api","timestamp":"2025-06-28 15:04:03"}
+{"level":"info","message":"Client disconnected: ndYi-7q4eewVGt1KAAAE","service":"helpme-api","timestamp":"2025-06-28 15:04:03"}
