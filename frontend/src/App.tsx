@@ -24,6 +24,7 @@ import ClientDetail from './pages/Clients/ClientDetail';
 import Assets from './pages/Assets/Assets';
 import KnowledgeBase from './pages/KnowledgeBase/KnowledgeBase';
 import Reports from './pages/Reports/Reports';
+import AnalyticsPage from './pages/Analytics/AnalyticsPage';
 import Settings from './pages/Settings/Settings';
 import Profile from './pages/Profile/Profile';
 
@@ -194,6 +195,14 @@ const App: React.FC = () => {
                   <ProtectedRoute>
                     <Layout>
                       <Reports />
+                    </Layout>
+                  </ProtectedRoute>
+                } />
+
+                <Route path="/analytics" element={
+                  <ProtectedRoute>
+                    <Layout>
+                      <AnalyticsPage />
                     </Layout>
                   </ProtectedRoute>
                 } />
