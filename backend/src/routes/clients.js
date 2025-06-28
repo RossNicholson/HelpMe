@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/auth');
+const knex = require('../utils/database');
 
 /**
  * @swagger
@@ -16,14 +17,19 @@ const { protect } = require('../middleware/auth');
  */
 router.get('/', protect, async (req, res) => {
   try {
-    const db = req.app.get('db');
-    const clients = await db('clients')
+    const clients = await knex('clients')
       .where('organization_id', req.user.organization_id)
       .orderBy('name');
     
-    res.json(clients);
+    res.json({
+      success: true,
+      data: clients
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch clients' });
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to fetch clients' 
+    });
   }
 });
 
@@ -47,18 +53,26 @@ router.get('/', protect, async (req, res) => {
  */
 router.get('/:id', protect, async (req, res) => {
   try {
-    const db = req.app.get('db');
-    const client = await db('clients')
+    const client = await knex('clients')
       .where({ id: req.params.id, organization_id: req.user.organization_id })
       .first();
     
     if (!client) {
-      return res.status(404).json({ error: 'Client not found' });
+      return res.status(404).json({ 
+        success: false,
+        error: 'Client not found' 
+      });
     }
     
-    res.json(client);
+    res.json({
+      success: true,
+      data: client
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch client' });
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to fetch client' 
+    });
   }
 });
 
@@ -88,12 +102,13 @@ router.post('/', protect, async (req, res) => {
     const { name, email, phone, address, notes } = req.body;
     
     if (!name || !email) {
-      return res.status(400).json({ error: 'Name and email are required' });
+      return res.status(400).json({ 
+        success: false,
+        error: 'Name and email are required' 
+      });
     }
     
-    const db = req.app.get('db');
-    
-    const [client] = await db('clients').insert({
+    const [client] = await knex('clients').insert({
       name,
       email,
       phone,
@@ -102,9 +117,15 @@ router.post('/', protect, async (req, res) => {
       organization_id: req.user.organization_id
     }).returning('*');
     
-    res.status(201).json(client);
+    res.status(201).json({
+      success: true,
+      data: client
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to create client' });
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to create client' 
+    });
   }
 });
 
@@ -129,20 +150,28 @@ router.post('/', protect, async (req, res) => {
 router.put('/:id', protect, async (req, res) => {
   try {
     const { name, email, phone, address, notes } = req.body;
-    const db = req.app.get('db');
     
-    const [client] = await db('clients')
+    const [client] = await knex('clients')
       .where({ id: req.params.id, organization_id: req.user.organization_id })
       .update({ name, email, phone, address, notes })
       .returning('*');
     
     if (!client) {
-      return res.status(404).json({ error: 'Client not found' });
+      return res.status(404).json({ 
+        success: false,
+        error: 'Client not found' 
+      });
     }
     
-    res.json(client);
+    res.json({
+      success: true,
+      data: client
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to update client' });
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to update client' 
+    });
   }
 });
 
@@ -166,19 +195,26 @@ router.put('/:id', protect, async (req, res) => {
  */
 router.delete('/:id', protect, async (req, res) => {
   try {
-    const db = req.app.get('db');
-    
-    const deleted = await db('clients')
+    const deleted = await knex('clients')
       .where({ id: req.params.id, organization_id: req.user.organization_id })
       .del();
     
     if (!deleted) {
-      return res.status(404).json({ error: 'Client not found' });
+      return res.status(404).json({ 
+        success: false,
+        error: 'Client not found' 
+      });
     }
     
-    res.json({ message: 'Client deleted successfully' });
+    res.json({ 
+      success: true,
+      message: 'Client deleted successfully' 
+    });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to delete client' });
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to delete client' 
+    });
   }
 });
 
