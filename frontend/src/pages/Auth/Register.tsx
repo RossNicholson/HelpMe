@@ -86,9 +86,6 @@ const Register: React.FC = () => {
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Create Account
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Join HelpMe - Your comprehensive helpdesk solution
-          </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
