@@ -24,7 +24,7 @@ const generateRefreshToken = (id) => {
 // @access  Public
 const register = async (req, res) => {
   try {
-    const { email, password, first_name, last_name, phone, role } = req.body;
+    const { email, password, first_name, last_name, phone, role, organization_name } = req.body;
 
     // Check if user exists
     const existingUser = await db('users').where('email', email).first();
@@ -39,37 +39,80 @@ const register = async (req, res) => {
     const salt = await bcrypt.genSalt(parseInt(process.env.BCRYPT_ROUNDS) || 12);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    // Create user
-    const [user] = await db('users').insert({
-      email,
-      password_hash: passwordHash,
-      first_name,
-      last_name,
-      phone,
-      role: role || 'client'
-    }).returning(['id', 'email', 'first_name', 'last_name', 'role', 'is_active']);
+    // Start transaction
+    const trx = await db.transaction();
 
-    // Generate tokens
-    const token = generateToken(user.id);
-    const refreshToken = generateRefreshToken(user.id);
-
-    // Store refresh token in database (you might want to create a separate table for this)
-    // For now, we'll just return it
-
-    res.status(201).json({
-      success: true,
-      data: {
-        user: {
-          id: user.id,
-          email: user.email,
-          first_name: user.first_name,
-          last_name: user.last_name,
-          role: user.role
-        },
-        token,
-        refreshToken
+    try {
+      // Create organization if provided, or use default
+      let organizationId;
+      if (organization_name) {
+        const [organization] = await trx('organizations').insert({
+          name: organization_name,
+          slug: organization_name.toLowerCase().replace(/\s+/g, '-'),
+          email: email,
+          is_active: true
+        }).returning('id');
+        organizationId = organization.id;
+      } else {
+        // Use the first available organization or create a default one
+        const defaultOrg = await trx('organizations').first();
+        if (!defaultOrg) {
+          const [organization] = await trx('organizations').insert({
+            name: 'Default Organization',
+            slug: 'default-organization',
+            email: 'admin@helpme.com',
+            is_active: true
+          }).returning('id');
+          organizationId = organization.id;
+        } else {
+          organizationId = defaultOrg.id;
+        }
       }
-    });
+
+      // Create user
+      const [user] = await trx('users').insert({
+        email,
+        password_hash: passwordHash,
+        first_name,
+        last_name,
+        phone,
+        role: role || 'client'
+      }).returning(['id', 'email', 'first_name', 'last_name', 'role', 'is_active']);
+
+      // Create user-organization relationship
+      await trx('user_organizations').insert({
+        user_id: user.id,
+        organization_id: organizationId,
+        role: role || 'client',
+        is_active: true
+      });
+
+      // Commit transaction
+      await trx.commit();
+
+      // Generate tokens
+      const token = generateToken(user.id);
+      const refreshToken = generateRefreshToken(user.id);
+
+      res.status(201).json({
+        success: true,
+        data: {
+          user: {
+            id: user.id,
+            email: user.email,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            role: user.role,
+            organization_id: organizationId
+          },
+          token,
+          refreshToken
+        }
+      });
+    } catch (error) {
+      await trx.rollback();
+      throw error;
+    }
   } catch (error) {
     logger.error('Registration error:', error);
     res.status(500).json({

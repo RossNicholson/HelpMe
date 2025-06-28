@@ -12,6 +12,7 @@ import Header from './components/Layout/Header';
 
 // Page Components
 import Login from './pages/Auth/Login';
+import Register from './pages/Auth/Register';
 import Dashboard from './pages/Dashboard/Dashboard';
 import AnalyticsPage from './pages/Analytics/AnalyticsPage';
 import SMSPage from './pages/SMS/SMSPage';
@@ -96,6 +97,12 @@ const App: React.FC = () => {
                 <Route path="/login" element={
                   <PublicRoute>
                     <Login />
+                  </PublicRoute>
+                } />
+
+                <Route path="/register" element={
+                  <PublicRoute>
+                    <Register />
                   </PublicRoute>
                 } />
 

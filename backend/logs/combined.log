@@ -221,3 +221,14 @@
 {"level":"info","message":"Client connected: usn_Zci3BTbYFW1-AAAB","service":"helpme-api","timestamp":"2025-06-28 14:56:04"}
 {"level":"info","message":"Client connected: Nsz4C5-bYlxpcMFwAAAD","service":"helpme-api","timestamp":"2025-06-28 14:56:07"}
 {"level":"info","message":"::1 - - [28/Jun/2025:13:56:10 +0000] \"GET /health HTTP/1.1\" 200 103 \"-\" \"curl/8.7.1\"","service":"helpme-api","timestamp":"2025-06-28 14:56:10"}
+{"level":"info","message":"Client disconnected: usn_Zci3BTbYFW1-AAAB","service":"helpme-api","timestamp":"2025-06-28 14:56:48"}
+{"level":"info","message":"Client disconnected: Nsz4C5-bYlxpcMFwAAAD","service":"helpme-api","timestamp":"2025-06-28 14:56:50"}
+{"level":"info","message":"Client connected: HdY2QtXLcnP9Q1PnAAAG","service":"helpme-api","timestamp":"2025-06-28 14:56:50"}
+{"level":"info","message":"Client disconnected: HdY2QtXLcnP9Q1PnAAAG","service":"helpme-api","timestamp":"2025-06-28 14:59:16"}
+{"level":"info","message":"Client connected: zGCGyj4IPkF1sc1NAAAJ","service":"helpme-api","timestamp":"2025-06-28 14:59:16"}
+{"level":"info","message":"Client disconnected: zGCGyj4IPkF1sc1NAAAJ","service":"helpme-api","timestamp":"2025-06-28 14:59:44"}
+{"level":"info","message":"Client connected: 8Cx9bxgDvmsWqArUAAAM","service":"helpme-api","timestamp":"2025-06-28 14:59:44"}
+{"level":"info","message":"🚀 HelpMe API server running on port 8000","service":"helpme-api","timestamp":"2025-06-28 15:02:48"}
+{"level":"info","message":"📚 API Documentation: http://localhost:8000/api-docs","service":"helpme-api","timestamp":"2025-06-28 15:02:48"}
+{"level":"info","message":"🏥 Health Check: http://localhost:8000/health","service":"helpme-api","timestamp":"2025-06-28 15:02:48"}
+{"level":"info","message":"Client connected: 6gXyshBZkD0KVUwuAAAB","service":"helpme-api","timestamp":"2025-06-28 15:02:48"}
